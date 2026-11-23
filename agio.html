@@ -1,0 +1,2622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agio Photography — Kwamo, off Ejisu Road | Booking &amp; Google Sheets System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-ivory: #FAF9F6;
+      --ink-obsidian: #141414;
+      --accent-gold: #C5A059;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-ivory);
+      color: var(--ink-obsidian);
+      overflow-x: hidden;
+    }
+    .font-serif-editorial {
+      font-family: 'Playfair Display', Georgia, serif;
+    }
+    .gold-bg { background-color: var(--accent-gold); }
+    .gold-text { color: var(--accent-gold); }
+    .gold-border { border-color: var(--accent-gold); }
+    .fade-in {
+      animation: fadeIn 0.35s ease-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #fff !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-[#C5A059] selection:text-white">
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 no-print"></div>
+
+  <!-- Public utility bar: public visitors see the website first; staff sign in only when needed. -->
+  <div class="bg-[#141414] text-stone-300 text-xs py-2 px-4 border-b border-stone-800 no-print">
+    <div class="max-w-7xl mx-auto flex items-center justify-end gap-3">
+      <span class="hidden sm:inline text-stone-400">Agio Photography</span>
+      <span class="hidden sm:inline text-stone-700">|</span>
+      <button onclick="app.setView('admin')" class="text-emerald-300 hover:text-white font-semibold transition" id="nav-util-admin">Admin / Staff Login</button>
+    </div>
+  </div>
+
+  <!-- Main Sticky Header -->
+  <header class="sticky top-0 z-40 bg-[#FAF9F6]/95 backdrop-blur-md border-b border-stone-200/80 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <button onclick="app.setView('public', 'home')" class="flex items-center gap-3 text-left group">
+        <div class="w-10 h-10 rounded-full bg-[#141414] flex items-center justify-center text-[#C5A059] shadow-sm group-hover:scale-105 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"/></svg>
+        </div>
+        <div>
+          <span id="header-studio-name" class="font-serif-editorial text-xl sm:text-2xl font-semibold tracking-tight text-[#141414] block leading-none">Agio Photography</span>
+          <span class="text-[10px] uppercase tracking-[0.2em] text-stone-500 mt-1 block">Kwamo, off Ejisu Road</span>
+        </div>
+      </button>
+
+      <!-- Desktop Navigation -->
+      <nav class="hidden lg:flex items-center gap-6 text-sm font-medium text-stone-700" id="desktop-nav">
+        <button onclick="app.setView('public','home')" data-page="home" class="nav-link py-1 border-b-2 border-transparent hover:text-[#141414]">Home</button>
+        <button onclick="app.setView('public','about')" data-page="about" class="nav-link py-1 border-b-2 border-transparent hover:text-[#141414]">About</button>
+        <button onclick="app.setView('public','portfolio')" data-page="portfolio" class="nav-link py-1 border-b-2 border-transparent hover:text-[#141414]">Portfolio</button>
+        <button onclick="app.setView('public','services')" data-page="services" class="nav-link py-1 border-b-2 border-transparent hover:text-[#141414]">Services &amp; Packages</button>
+        <button onclick="app.setView('public','photographers')" data-page="photographers" class="nav-link py-1 border-b-2 border-transparent hover:text-[#141414]">Photographers</button>
+        <button onclick="app.setView('public','reviews')" data-page="reviews" class="nav-link py-1 border-b-2 border-transparent hover:text-[#141414]">Reviews</button>
+        <button onclick="app.setView('public','contact')" data-page="contact" class="nav-link py-1 border-b-2 border-transparent hover:text-[#141414]">Contact</button>
+        <button onclick="app.setView('public','faqs')" data-page="faqs" class="nav-link py-1 border-b-2 border-transparent hover:text-[#141414]">FAQs</button>
+      </nav>
+
+      <!-- Desktop Actions -->
+      <div class="hidden sm:flex items-center gap-3">
+        <button onclick="app.setView('portal')" class="px-3.5 py-2 text-xs font-semibold text-stone-700 hover:text-[#141414] border border-stone-300 rounded-lg transition">
+          My Bookings
+        </button>
+        <button onclick="app.startBooking()" class="px-5 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-white gold-bg shadow-md hover:opacity-95 transition">
+          Book Now
+        </button>
+      </div>
+
+      <!-- Mobile Menu Toggle -->
+      <button onclick="app.toggleMobileMenu()" class="lg:hidden p-2 rounded-lg text-stone-800 hover:bg-stone-200/60">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobile-drawer" class="hidden lg:hidden bg-[#FAF9F6] border-b border-stone-200 px-4 pt-2 pb-6 space-y-1.5">
+      <button onclick="app.setView('public','home')" class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium hover:bg-stone-200/50">Home</button>
+      <button onclick="app.setView('public','about')" class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium hover:bg-stone-200/50">About Us</button>
+      <button onclick="app.setView('public','portfolio')" class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium hover:bg-stone-200/50">Portfolio Gallery</button>
+      <button onclick="app.setView('public','services')" class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium hover:bg-stone-200/50">Services &amp; Packages</button>
+      <button onclick="app.setView('public','photographers')" class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium hover:bg-stone-200/50">Meet Our Photographers</button>
+      <button onclick="app.setView('public','reviews')" class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium hover:bg-stone-200/50">Testimonials &amp; Reviews</button>
+      <button onclick="app.setView('public','contact')" class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium hover:bg-stone-200/50">Contact Us</button>
+      <button onclick="app.setView('public','faqs')" class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium hover:bg-stone-200/50">FAQs</button>
+      <div class="pt-3 border-t border-stone-200 flex flex-col gap-2">
+        <button onclick="app.startBooking()" class="w-full py-3 rounded-xl text-white gold-bg text-xs font-semibold uppercase tracking-wider">Book an Appointment</button>
+        <button onclick="app.setView('portal')" class="w-full py-2.5 rounded-xl border border-stone-300 text-xs font-semibold">Customer Booking Portal</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dynamic Viewport -->
+  <main id="app-main" class="flex-1"></main>
+
+  <!-- Global Footer -->
+  <footer id="app-footer" class="bg-[#141414] text-stone-300 pt-16 pb-10 border-t border-stone-800 no-print"></footer>
+
+  <!-- Modal Container -->
+  <div id="modal-root"></div>
+
+  <script>
+    // =========================================================================
+    // 1. DEFAULT SEED DATA (12 FULL PHOTOGRAPHY SERVICES, STAFF, PORTFOLIO)
+    // =========================================================================
+    const DEFAULT_DATA = {
+      settings: {
+        studioName: 'Agio Photography',
+        tagline: 'Timeless Editorial & Fine Art Photography',
+        accentColor: '#C5A059',
+        email: 'bookings@agiophotography.com',
+        phone: '+233 54 358 5265',
+        whatsapp: '233543585265',
+        address: 'Kwamo, off Ejisu road',
+        instagram: 'https://instagram.com',
+        facebook: 'https://facebook.com',
+        currency: '₵',
+        bookingPolicy: 'A non-refundable retainer deposit (30%–50%) locks your date and photographer. Remaining balance is due 48 hours prior to the session.',
+        cancellationPolicy: 'Complimentary rescheduling up to 72 hours before your scheduled shoot. Cancellations within 48 hours forfeit the retainer deposit.',
+        terms: 'Agio Photography retains copyright and grants clients personal print & digital sharing rights. Commercial licensing available.',
+        intakeQuestions: [
+          'What mood, aesthetic, or color palette do you envision for this shoot?',
+          'Are there specific must-have poses, products, or family groupings?'
+        ],
+        googleSheetWebAppUrl: '',
+        lastSyncedAt: '',
+        gateways: {
+          paystackPublicKey: '',
+          flutterwavePublicKey: '',
+          stripePublishableKey: '',
+          paypalClientId: ''
+        },
+        integrations: {
+          emailSender: 'bookings@agiophotography.com',
+          smsProvider: 'Twilio / Hubtel',
+          smsApiKey: '',
+          zoomMeetingLink: 'https://zoom.us/j/agio-photography-consult',
+          googleCalendarSync: false
+        }
+      },
+      photographers: [
+        {
+          id: 'staff_elena',
+          name: 'Elena Mensah',
+          role: 'Guest',
+          title: 'Founder & Lead Editorial Photographer',
+          email: 'elena@agiophotography.com',
+          phone: '+233 54 358 5265',
+          photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
+          bio: '11+ years capturing luxury weddings, maternity heirlooms, and editorial portraits from our Kwamo, off Ejisu road studio across Ashanti and beyond.',
+          specialties: ['Wedding Photography', 'Engagement Photography', 'Maternity Photography', 'Portrait Photography'],
+          workingHours: {
+            1: { active: true, start: '09:00', end: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+            2: { active: true, start: '09:00', end: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+            3: { active: true, start: '09:00', end: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+            4: { active: true, start: '09:00', end: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+            5: { active: true, start: '09:00', end: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+            6: { active: true, start: '10:00', end: '17:00', breakStart: '13:30', breakEnd: '14:00' },
+            0: { active: false, start: '10:00', end: '16:00', breakStart: '', breakEnd: '' }
+          }
+        },
+        {
+          id: 'staff_kwame',
+          name: 'Kwame Osei-Bonsu',
+          role: 'Photographer',
+          title: 'Senior Commercial & Architectural Photographer',
+          email: 'kwame@agiophotography.com',
+          phone: '+233 54 358 5265',
+          photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
+          bio: 'Master of sculpted studio strobe lighting, luxury real estate architecture, product campaigns, and executive portraits.',
+          specialties: ['Corporate Photography', 'Product Photography', 'Real Estate Photography', 'Studio Photography'],
+          workingHours: {
+            1: { active: true, start: '08:30', end: '17:30', breakStart: '12:30', breakEnd: '13:30' },
+            2: { active: true, start: '08:30', end: '17:30', breakStart: '12:30', breakEnd: '13:30' },
+            3: { active: true, start: '08:30', end: '17:30', breakStart: '12:30', breakEnd: '13:30' },
+            4: { active: true, start: '08:30', end: '17:30', breakStart: '12:30', breakEnd: '13:30' },
+            5: { active: true, start: '08:30', end: '17:30', breakStart: '12:30', breakEnd: '13:30' },
+            6: { active: false, start: '09:00', end: '15:00', breakStart: '', breakEnd: '' },
+            0: { active: false, start: '09:00', end: '15:00', breakStart: '', breakEnd: '' }
+          }
+        },
+        {
+          id: 'staff_amara',
+          name: 'Amara Boateng',
+          role: 'Administrator',
+          title: 'Lifestyle, Family & Celebrations Specialist',
+          email: 'amara@agiophotography.com',
+          phone: '+233 54 358 5265',
+          photoUrl: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=800&q=80',
+          bio: 'Captures candid milestone graduations, joyful birthday celebrations, multi-generational family heirlooms, and gala events.',
+          specialties: ['Family Photography', 'Graduation Photography', 'Birthday Photography', 'Event Photography', 'Portrait Photography'],
+          workingHours: {
+            1: { active: true, start: '09:30', end: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+            2: { active: true, start: '09:30', end: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+            3: { active: false, start: '09:30', end: '18:00', breakStart: '', breakEnd: '' },
+            4: { active: true, start: '09:30', end: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+            5: { active: true, start: '09:30', end: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+            6: { active: true, start: '09:00', end: '18:00', breakStart: '13:00', breakEnd: '14:00' },
+            0: { active: true, start: '11:00', end: '17:00', breakStart: '', breakEnd: '' }
+          }
+        }
+      ],
+      services: [
+        {
+          id: 'srv_wedding',
+          name: 'Wedding Photography',
+          category: 'Weddings',
+          description: 'Full-day documentary & bridal editorial coverage, 2 photographers, online gallery, and 450+ high-resolution master retouched images.',
+          imageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=80',
+          price: 8500,
+          durationMinutes: 480,
+          depositPercent: 40,
+          active: true,
+          photographerIds: ['staff_elena', 'staff_amara'],
+          addons: [
+            { id: 'add_album', name: 'Italian Linen Fine-Art Album (40 Pages)', price: 1800 },
+            { id: 'add_drone', name: 'Aerial Cinema Drone Coverage', price: 950 }
+          ]
+        },
+        {
+          id: 'srv_engagement',
+          name: 'Engagement Photography',
+          category: 'Weddings',
+          description: 'Romantic golden-hour couple session across two scenic outdoor locations with 35 edited high-resolution photographs for save-the-dates.',
+          imageUrl: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=900&q=80',
+          price: 1800,
+          durationMinutes: 120,
+          depositPercent: 40,
+          active: true,
+          photographerIds: ['staff_elena', 'staff_amara'],
+          addons: [
+            { id: 'add_guestbook', name: 'Custom Hardcover Engagement Guestbook', price: 650 }
+          ]
+        },
+        {
+          id: 'srv_portrait',
+          name: 'Portrait Photography',
+          category: 'Portraits',
+          description: 'Magazine-caliber portrait session in our daylight studio or on location. Includes 2 outfit changes and 20 retouched fine-art portraits.',
+          imageUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=900&q=80',
+          price: 1200,
+          durationMinutes: 90,
+          depositPercent: 50,
+          active: true,
+          photographerIds: ['staff_elena', 'staff_kwame', 'staff_amara'],
+          addons: [
+            { id: 'add_mua', name: 'In-Studio Celebrity Makeup Artist', price: 450 }
+          ]
+        },
+        {
+          id: 'srv_studio',
+          name: 'Studio Photography',
+          category: 'Portraits',
+          description: 'Sculpted Profoto strobe and seamless backdrop editorial shoot tailored for artists, lookbooks, and creative personal branding.',
+          imageUrl: 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?auto=format&fit=crop&w=900&q=80',
+          price: 1350,
+          durationMinutes: 90,
+          depositPercent: 50,
+          active: true,
+          photographerIds: ['staff_kwame', 'staff_elena'],
+          addons: [
+            { id: 'add_gels', name: 'Custom Color Gel & Fog Atmospheric Lighting', price: 300 }
+          ]
+        },
+        {
+          id: 'srv_maternity',
+          name: 'Maternity Photography',
+          category: 'Maternity',
+          description: 'Artistic motherhood portraiture with complimentary access to our studio silk drape & couture maternity gown collection.',
+          imageUrl: 'https://images.unsplash.com/photo-1544126592-807ade215a0b?auto=format&fit=crop&w=900&q=80',
+          price: 1650,
+          durationMinutes: 120,
+          depositPercent: 40,
+          active: true,
+          photographerIds: ['staff_elena', 'staff_amara'],
+          addons: [
+            { id: 'add_canvas', name: '24x36 Museum Gallery Canvas Print', price: 650 }
+          ]
+        },
+        {
+          id: 'srv_family',
+          name: 'Family Photography',
+          category: 'Portraits',
+          description: 'Warm, relaxed multi-generational family portraits designed for heirloom wall art. Includes 30 edited high-resolution files.',
+          imageUrl: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=900&q=80',
+          price: 1500,
+          durationMinutes: 90,
+          depositPercent: 40,
+          active: true,
+          photographerIds: ['staff_amara', 'staff_elena'],
+          addons: [
+            { id: 'add_folio', name: 'Linen Folio Box with 10 Matted Prints', price: 850 }
+          ]
+        },
+        {
+          id: 'srv_birthday',
+          name: 'Birthday Photography',
+          category: 'Events',
+          description: 'Milestone birthday studio portraits or private party coverage capturing decor, cake toast, and candid guest celebrations.',
+          imageUrl: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=900&q=80',
+          price: 1400,
+          durationMinutes: 120,
+          depositPercent: 50,
+          active: true,
+          photographerIds: ['staff_amara'],
+          addons: [
+            { id: 'add_reels', name: '60-Second Vertical Highlight Reel', price: 500 }
+          ]
+        },
+        {
+          id: 'srv_graduation',
+          name: 'Graduation Photography',
+          category: 'Events',
+          description: 'Celebrate your academic achievement with cap-and-gown portraits plus editorial fashion looks on campus or in our studio.',
+          imageUrl: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=900&q=80',
+          price: 950,
+          durationMinutes: 60,
+          depositPercent: 50,
+          active: true,
+          photographerIds: ['staff_amara'],
+          addons: [
+            { id: 'add_fam_grad', name: 'Extended Family Group Add-On (30 mins)', price: 300 }
+          ]
+        },
+        {
+          id: 'srv_event',
+          name: 'Event Photography',
+          category: 'Events',
+          description: 'Comprehensive documentary coverage for galas, conferences, launches, and private dinners with 48-hour press gallery delivery.',
+          imageUrl: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=900&q=80',
+          price: 2800,
+          durationMinutes: 240,
+          depositPercent: 40,
+          active: true,
+          photographerIds: ['staff_amara', 'staff_kwame'],
+          addons: [
+            { id: 'add_2nd', name: 'Second Event Photographer', price: 1100 }
+          ]
+        },
+        {
+          id: 'srv_corporate',
+          name: 'Corporate Photography',
+          category: 'Commercial',
+          description: 'Executive headshots, leadership team portraits, and cohesive brand imagery for annual reports, press, and LinkedIn.',
+          imageUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=900&q=80',
+          price: 2400,
+          durationMinutes: 180,
+          depositPercent: 50,
+          active: true,
+          photographerIds: ['staff_kwame'],
+          addons: [
+            { id: 'add_tether', name: 'On-Site Live Client Selection Station', price: 400 }
+          ]
+        },
+        {
+          id: 'srv_product',
+          name: 'Product Photography',
+          category: 'Commercial',
+          description: 'Precision studio lighting, macro detail capture, and styled e-commerce or campaign sets for luxury goods, cosmetics, and fashion.',
+          imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=80',
+          price: 1900,
+          durationMinutes: 180,
+          depositPercent: 50,
+          active: true,
+          photographerIds: ['staff_kwame'],
+          addons: [
+            { id: 'add_props', name: 'Bespoke Set & Architectural Prop Styling', price: 550 }
+          ]
+        },
+        {
+          id: 'srv_realestate',
+          name: 'Real Estate Photography',
+          category: 'Commercial',
+          description: 'HDR architectural interior & exterior photography with vertical perspective correction for luxury residences and hospitality.',
+          imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=900&q=80',
+          price: 2200,
+          durationMinutes: 150,
+          depositPercent: 40,
+          active: true,
+          photographerIds: ['staff_kwame'],
+          addons: [
+            { id: 'add_twilight', name: 'Golden Hour / Twilight Exterior Hero Session', price: 500 }
+          ]
+        }
+      ],
+      portfolio: [
+        { id: 'p1', title: 'Abena & Kojo — Botanical Vows', category: 'Weddings', imageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1000&q=80', photographer: 'Elena Mensah', location: 'Aburi Gardens' },
+        { id: 'p2', title: 'Golden Hour Silk Study', category: 'Portraits', imageUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=1000&q=80', photographer: 'Elena Mensah', location: 'Studio A, Kumasi' },
+        { id: 'p3', title: 'Atelier Noir Horology Campaign', category: 'Commercial', imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=80', photographer: 'Kwame Osei-Bonsu', location: 'Commercial Cyclorama' },
+        { id: 'p4', title: 'Serenity in Bloom — Motherhood', category: 'Maternity', imageUrl: 'https://images.unsplash.com/photo-1544126592-807ade215a0b?auto=format&fit=crop&w=1000&q=80', photographer: 'Elena Mensah', location: 'Daylight Loft' },
+        { id: 'p5', title: 'Villa Akwaaba Architecture', category: 'Commercial', imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1000&q=80', photographer: 'Kwame Osei-Bonsu', location: 'Nhyiaeso, Kumasi' },
+        { id: 'p6', title: 'Symphony Charity Gala Night', category: 'Events', imageUrl: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1000&q=80', photographer: 'Amara Boateng', location: 'Grand Ballroom' }
+      ],
+      reviews: [],
+      appointments: [],
+      blockedSlots: [],
+      customers: [],
+      inquiries: []
+    };
+
+    // =========================================================================
+    // 2. GOOGLE APPS SCRIPT TEMPLATE (FOR TWO-WAY GOOGLE SHEETS LINKING)
+    // =========================================================================
+    const GOOGLE_APPS_SCRIPT_CODE = "/**\n * AGIO PHOTOGRAPHY - GOOGLE SHEETS BACKEND + AUTHENTICATED HTML SERVICE BRIDGE\n * Deployment: Execute as the owner. Anyone may load the bridge URL, but every\n * private API action requires a server-issued session token and role check.\n * Configure ALLOWED_ORIGINS and the one-time initial admin credentials below.\n */\nconst AGIO = {\n  SHEETS: ['Bookings','Customers','Staff','Services','Photographers','Payments','Inquiries','Reviews','BlockedSlots','Settings'],\n  ALLOWED_ORIGINS: ['https://YOUR-GITHUB-USERNAME.github.io'], // Add your exact website origin/custom domain.\n  INITIAL_ADMIN_EMAIL: 'CHANGE-THIS-EMAIL@example.com',\n  INITIAL_ADMIN_PASSWORD: 'CHANGE-THIS-TO-A-LONG-ONE-TIME-PASSWORD',\n  SESSION_SECONDS: 21600,\n  HASH_ROUNDS: 4000\n};\n\nfunction doGet(e) {\n  if (e && e.parameter && e.parameter.bridge === '1') {\n    return HtmlService.createHtmlOutput(bridgeHtml_())\n      .setTitle('Agio Secure API Bridge')\n      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);\n  }\n  return json_({ok:true, service:'Agio Photography API', message:'Use the website login and booking interface.'});\n}\n\nfunction doPost() {\n  return json_({ok:false,error:'Direct requests are not supported. Use the secure website bridge.'});\n}\n\nfunction initializeAgioSheets() {\n  const ss = SpreadsheetApp.getActiveSpreadsheet();\n  AGIO.SHEETS.forEach(function(name) {\n    let sh = ss.getSheetByName(name);\n    if (!sh) sh = ss.insertSheet(name);\n    if (sh.getLastRow() === 0) sh.appendRow(['ID','JSON_RECORD','UPDATED_AT']);\n    sh.setFrozenRows(1);\n  });\n  const staff = ss.getSheetByName('Staff');\n  if (staff.getLastRow() < 2) {\n    if (AGIO.INITIAL_ADMIN_EMAIL.indexOf('CHANGE-THIS') === 0 || AGIO.INITIAL_ADMIN_PASSWORD.indexOf('CHANGE-THIS') === 0 || AGIO.INITIAL_ADMIN_PASSWORD.length < 14) {\n      throw new Error('Edit AGIO.INITIAL_ADMIN_EMAIL and AGIO.INITIAL_ADMIN_PASSWORD first. Use a unique password of at least 14 characters.');\n    }\n    const salt = Utilities.getUuid() + Utilities.getUuid();\n    const admin = {id:Utilities.getUuid(),name:'Studio Administrator',email:AGIO.INITIAL_ADMIN_EMAIL.toLowerCase(),role:'Super Administrator',active:true,salt:salt,passwordHash:hashPassword_(AGIO.INITIAL_ADMIN_PASSWORD,salt),photographerId:'',createdAt:new Date().toISOString()};\n    staff.appendRow([admin.id,JSON.stringify(admin),new Date().toISOString()]);\n  }\n  PropertiesService.getScriptProperties().setProperty('AGIO_SETUP_COMPLETE','true');\n  return 'Agio Sheets initialized. Initial administrator account created if Staff was empty.';\n}\n\nfunction apiDispatch(action, payload) {\n  payload = payload || {};\n  try {\n    switch (String(action || '')) {\n      case 'login': return login_(payload);\n      case 'logout': return logout_(payload);\n      case 'publicCatalog': return publicCatalog_();\n      case 'bootstrapData': return bootstrapData_(payload.token, payload.data || {});\n      case 'createBooking': return createBooking_(payload.record || {});\n      case 'listBookings': return listBookings_(payload.token);\n      case 'updateBooking': return updateBooking_(payload.token, payload.id, payload.patch || {});\n      case 'listStaff': return listStaff_(payload.token);\n      case 'createStaff': return createStaff_(payload.token, payload.staff || {});\n      case 'setStaffActive': return setStaffActive_(payload.token, payload.id, payload.active === true);\n      case 'saveCollection': return saveCollection_(payload.token, payload.name, payload.records || []);\n      case 'getCollection': return getCollection_(payload.token, payload.name);\n      default: return {ok:false,error:'Unknown API action.'};\n    }\n  } catch (err) {\n    return {ok:false,error:String(err && err.message ? err.message : err)};\n  }\n}\n\nfunction bootstrapData_(token, data) {\n  const user=requireSession_(token); requireAdmin_(user);\n  const allowed={Services:data.services||[],Photographers:data.photographers||[],Reviews:data.reviews||[],BlockedSlots:data.blockedSlots||[],Inquiries:data.inquiries||[],Settings:data.settings?[Object.assign({id:'studio_settings'},data.settings)]:[]};\n  if(readRecords_('Bookings').length===0 && Array.isArray(data.bookings)) data.bookings.forEach(function(r){if(r&&r.id)upsertRecord_('Bookings',String(r.id),r);});\n  if(readRecords_('Customers').length===0 && Array.isArray(data.customers)) data.customers.forEach(function(r){if(r&&r.id)upsertRecord_('Customers',String(r.id),r);});\n  Object.keys(allowed).forEach(function(name){\n    if(readRecords_(name).length===0 && Array.isArray(allowed[name]) && allowed[name].length){\n      allowed[name].forEach(function(record){const id=String(record.id||Utilities.getUuid());record.id=id;upsertRecord_(name,id,record);});\n    }\n  });\n  return {ok:true,collections:{\n    Services:readRecords_('Services').map(function(x){return x.record;}),\n    Photographers:readRecords_('Photographers').map(function(x){return x.record;}),\n    Reviews:readRecords_('Reviews').map(function(x){return x.record;}),\n    BlockedSlots:readRecords_('BlockedSlots').map(function(x){return x.record;}),\n    Inquiries:readRecords_('Inquiries').map(function(x){return x.record;}),\n    Customers:readRecords_('Customers').map(function(x){return x.record;}),\n    Settings:readRecords_('Settings').map(function(x){return x.record;}),\n    Bookings:readRecords_('Bookings').map(function(x){return x.record;})\n  }};\n}\n\nfunction login_(p) {\n  const email = String(p.email || '').trim().toLowerCase();\n  const password = String(p.password || '');\n  if (!email || !password || password.length > 256) return {ok:false,error:'Enter your email and password.'};\n  const cache=CacheService.getScriptCache();\n  const attemptKey='agio_login_fail_' + sha256_(email);\n  const attempts=Number(cache.get(attemptKey)||0);\n  if(attempts>=8) return {ok:false,error:'Too many failed attempts. Wait 15 minutes before trying again.'};\n  const user = findStaffByEmail_(email);\n  if (!user || user.active !== true || hashPassword_(password,user.salt) !== user.passwordHash) {\n    cache.put(attemptKey,String(attempts+1),900);\n    return {ok:false,error:'Invalid login details or inactive account.'};\n  }\n  cache.remove(attemptKey);\n  const token = Utilities.getUuid() + Utilities.getUuid();\n  const session = {userId:user.id,email:user.email,name:user.name,role:user.role,photographerId:user.photographerId || '',issuedAt:Date.now()};\n  CacheService.getScriptCache().put('agio_session_' + sha256_(token),JSON.stringify(session),AGIO.SESSION_SECONDS);\n  return {ok:true,token:token,user:{id:user.id,name:user.name,email:user.email,role:user.role,photographerId:user.photographerId || ''},expiresIn:AGIO.SESSION_SECONDS};\n}\n\nfunction logout_(p) {\n  if (p.token) CacheService.getScriptCache().remove('agio_session_' + sha256_(String(p.token)));\n  return {ok:true};\n}\n\nfunction createBooking_(record) {\n  const required = ['bookingRef','clientName','clientEmail','clientPhone','date','startTime','endTime','serviceId','photographerId'];\n  required.forEach(function(k){ if (!record[k]) throw new Error('Booking is missing ' + k + '.'); });\n  if (!/^\\S+@\\S+\\.\\S+$/.test(String(record.clientEmail))) throw new Error('Enter a valid email address.');\n  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(String(record.date))) throw new Error('Invalid booking date.');\n  if (!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(String(record.startTime)) || !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(String(record.endTime)) || String(record.endTime)<=String(record.startTime)) throw new Error('Invalid booking time.');\n  if (String(record.date) < Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd')) throw new Error('Bookings cannot be made for a past date.');\n  const services=readRecords_('Services').map(function(x){return x.record;});\n  const service=services.find(function(x){return x.id===String(record.serviceId);});\n  if (services.length && (!service || service.active===false)) throw new Error('The selected photography package is unavailable.');\n  if (service) {\n    const selectedIds=(record.addons||[]).map(function(a){return a.id;});\n    const addonTotal=(service.addons||[]).filter(function(a){return selectedIds.indexOf(a.id)>=0;}).reduce(function(sum,a){return sum+Number(a.price||0);},0);\n    const trustedTotal=Number(service.price||0)+addonTotal;\n    record.totalAmount=trustedTotal;\n    record.durationMinutes=Number(service.durationMinutes||service.duration||record.durationMinutes||60);\n    record.depositAmount=Math.round(trustedTotal*Number(service.depositPercent||40)/100);\n    record.amountPaid=0;\n    record.balanceRemaining=trustedTotal;\n  }\n  const photographers=readRecords_('Photographers').map(function(x){return x.record;});\n  const photographer=photographers.find(function(x){return x.id===String(record.photographerId);});\n  if (photographers.length && (!photographer || photographer.active===false)) throw new Error('The selected photographer is unavailable.');\n  if (photographer && photographer.workingHours) {\n    const day=new Date(String(record.date)+'T12:00:00').getDay();\n    const hours=photographer.workingHours[day];\n    const toMin=function(t){const parts=String(t||'').split(':');return Number(parts[0])*60+Number(parts[1]);};\n    const start=toMin(record.startTime), end=toMin(record.endTime);\n    if (!hours || !hours.active || start<toMin(hours.start) || end>toMin(hours.end)) throw new Error('The selected time is outside this photographer\u2019s working hours.');\n    if (Number(record.durationMinutes||60)<360 && hours.breakStart && hours.breakEnd && start<toMin(hours.breakEnd) && toMin(hours.breakStart)<end) throw new Error('The selected time overlaps the photographer\u2019s break.');\n    record.photographerName=photographer.name;\n  }\n  const throttleKey='agio_booking_' + sha256_(String(record.clientEmail).toLowerCase());\n  const cache=CacheService.getScriptCache();\n  const recent=Number(cache.get(throttleKey)||0);\n  if(recent>=5) throw new Error('Too many booking attempts. Please try again later.');\n  cache.put(throttleKey,String(recent+1),600);\n  if (String(record.clientName).length > 120 || String(record.specialRequirements || '').length > 3000) throw new Error('Some booking information is too long.');\n  const lock = LockService.getScriptLock();\n  lock.waitLock(20000);\n  try {\n    const existing = readRecords_('Bookings');\n    const conflict = existing.some(function(x){\n      const a=x.record;\n      return a.date === record.date && a.photographerId === record.photographerId && a.status !== 'Cancelled' && overlaps_(a.startTime,a.endTime,record.startTime,record.endTime);\n    });\n    if (conflict) throw new Error('That appointment time has just been booked. Please choose another time.');\n    record.id = record.id || Utilities.getUuid();\n    record.status = 'Pending';\n    record.createdAt = record.createdAt || new Date().toISOString();\n    record.updatedAt = new Date().toISOString();\n    upsertRecord_('Bookings',record.id,record);\n    upsertCustomer_(record);\n    return {ok:true,record:record};\n  } finally { lock.releaseLock(); }\n}\n\nfunction listBookings_(token) {\n  const user = requireSession_(token);\n  const rows = readRecords_('Bookings').map(function(x){return x.record;});\n  let filtered = rows;\n  if (user.role === 'Photographer') filtered = rows.filter(function(r){return r.photographerId === user.photographerId;});\n  if (user.role === 'Staff') filtered = rows.filter(function(r){return r.photographerId === user.photographerId || r.assignedStaffId === user.userId;});\n  return {ok:true,records:filtered,user:user};\n}\n\nfunction updateBooking_(token,id,patch) {\n  const user = requireSession_(token);\n  const row = findRecord_('Bookings',id);\n  if (!row) throw new Error('Booking not found.');\n  if (user.role === 'Photographer' && row.photographerId !== user.photographerId) throw new Error('You are not allowed to update this booking.');\n  if (user.role === 'Staff' && row.assignedStaffId !== user.userId) throw new Error('You are not allowed to update this booking.');\n  const allowed = user.role === 'Super Administrator' || user.role === 'Administrator'\n    ? ['status','photographerId','photographerName','specialRequirements','internalNotes','assignedStaffId','paymentStatus','amountPaid','balanceRemaining']\n    : ['status','internalNotes'];\n  Object.keys(patch).forEach(function(k){if (allowed.indexOf(k) >= 0) row[k]=patch[k];});\n  row.updatedAt = new Date().toISOString();\n  upsertRecord_('Bookings',id,row);\n  return {ok:true,record:row};\n}\n\nfunction listStaff_(token) {\n  const user = requireSession_(token);\n  requireAdmin_(user);\n  const records = readRecords_('Staff').map(function(x){\n    const u=x.record; return {id:u.id,name:u.name,email:u.email,role:u.role,active:u.active,photographerId:u.photographerId || ''};\n  });\n  return {ok:true,records:records};\n}\n\nfunction createStaff_(token,staff) {\n  const user=requireSession_(token); requireAdmin_(user);\n  const email=String(staff.email||'').trim().toLowerCase();\n  const password=String(staff.password||'');\n  const name=String(staff.name||'').trim();\n  const role=String(staff.role||'');\n  if (!name || !/^\\S+@\\S+\\.\\S+$/.test(email)) throw new Error('Enter a valid staff name and email.');\n  if (password.length < 14) throw new Error('Temporary password must contain at least 14 characters.');\n  if (['Administrator','Photographer','Staff'].indexOf(role)<0) throw new Error('Invalid staff role.');\n  if (role==='Administrator' && user.role!=='Super Administrator') throw new Error('Only the Super Administrator can create another Administrator.');\n  if (findStaffByEmail_(email)) throw new Error('An account with that email already exists.');\n  const salt=Utilities.getUuid()+Utilities.getUuid();\n  const record={id:Utilities.getUuid(),name:name,email:email,role:role,active:true,salt:salt,passwordHash:hashPassword_(password,salt),photographerId:String(staff.photographerId||''),createdAt:new Date().toISOString()};\n  upsertRecord_('Staff',record.id,record);\n  return {ok:true,staff:{id:record.id,name:record.name,email:record.email,role:record.role,active:true,photographerId:record.photographerId}};\n}\n\nfunction setStaffActive_(token,id,active) {\n  const user=requireSession_(token); requireAdmin_(user);\n  const row=findRecord_('Staff',id); if(!row) throw new Error('Staff account not found.');\n  if(row.role==='Super Administrator' && !active) throw new Error('Use a separate administrator account before disabling the primary account.');\n  row.active=active; row.updatedAt=new Date().toISOString(); upsertRecord_('Staff',id,row);\n  return {ok:true};\n}\n\nfunction saveCollection_(token,name,records) {\n  const user=requireSession_(token); requireAdmin_(user);\n  const allowed=['Services','Photographers','Payments','Inquiries','Reviews','BlockedSlots','Settings'];\n  if(allowed.indexOf(name)<0) throw new Error('Collection is not writable.');\n  if(!Array.isArray(records) || records.length>2000) throw new Error('Invalid collection.');\n  records.forEach(function(r){const id=String(r.id||Utilities.getUuid()); r.id=id; upsertRecord_(name,id,r);});\n  return {ok:true,count:records.length};\n}\n\nfunction getCollection_(token,name) {\n  const user=requireSession_(token);\n  if(['Super Administrator','Administrator'].indexOf(user.role)<0) throw new Error('Not authorized.');\n  const allowed=['Customers','Services','Photographers','Payments','Inquiries','Reviews','BlockedSlots','Settings'];\n  if(allowed.indexOf(name)<0) throw new Error('Collection is not available.');\n  return {ok:true,records:readRecords_(name).map(function(x){return x.record;})};\n}\n\nfunction publicCatalog_() {\n  const services=readRecords_('Services').map(function(x){const r=x.record; return {id:r.id,name:r.name,title:r.title,description:r.description,price:r.price,duration:r.duration,durationMinutes:r.durationMinutes,imageUrl:r.imageUrl,category:r.category,features:r.features,addons:r.addons,active:r.active};});\n  const photographers=readRecords_('Photographers').map(function(x){const r=x.record; return {id:r.id,name:r.name,title:r.title,bio:r.bio,photoUrl:r.photoUrl,specialties:r.specialties,active:r.active,workingHours:r.workingHours};});\n  return {ok:true,data:{Services:services,Photographers:photographers}};\n}\n\nfunction requireSession_(token) {\n  if (!token) throw new Error('Please sign in again.');\n  const raw=CacheService.getScriptCache().get('agio_session_' + sha256_(String(token)));\n  if (!raw) throw new Error('Your session has expired. Please sign in again.');\n  return JSON.parse(raw);\n}\nfunction requireAdmin_(u){if(['Super Administrator','Administrator'].indexOf(u.role)<0) throw new Error('Administrator permission required.');}\nfunction findStaffByEmail_(email){return readRecords_('Staff').map(function(x){return x.record;}).find(function(u){return String(u.email||'').toLowerCase()===email;})||null;}\nfunction upsertCustomer_(b){\n  const email=String(b.clientEmail).toLowerCase(); const found=readRecords_('Customers').find(function(x){return String(x.record.email||'').toLowerCase()===email;});\n  const c=found?found.record:{id:Utilities.getUuid(),name:b.clientName,email:email,phone:b.clientPhone,totalBookings:0,createdAt:new Date().toISOString()};\n  c.name=b.clientName; c.phone=b.clientPhone; c.lastBookingDate=b.date; c.totalBookings=Number(c.totalBookings||0)+1; c.preferredService=b.serviceName||'';\n  upsertRecord_('Customers',c.id,c);\n}\nfunction sheet_(name){const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name); if(!sh) throw new Error('Missing sheet '+name+'. Run initializeAgioSheets().'); return sh;}\nfunction readRecords_(name){const sh=sheet_(name); const n=sh.getLastRow(); if(n<2)return []; return sh.getRange(2,1,n-1,3).getValues().filter(function(r){return r[0]&&r[1];}).map(function(r){try{return {id:String(r[0]),record:JSON.parse(r[1])};}catch(e){return null;}}).filter(Boolean);}\nfunction findRecord_(name,id){const x=readRecords_(name).find(function(v){return v.id===String(id);}); return x?x.record:null;}\nfunction upsertRecord_(name,id,record){const sh=sheet_(name); const n=sh.getLastRow(); if(n>=2){const ids=sh.getRange(2,1,n-1,1).getValues().flat(); const i=ids.findIndex(function(v){return String(v)===String(id);}); if(i>=0){sh.getRange(i+2,1,1,3).setValues([[String(id),JSON.stringify(record),new Date().toISOString()]]);return;}} sh.appendRow([String(id),JSON.stringify(record),new Date().toISOString()]);}\nfunction overlaps_(s1,e1,s2,e2){return String(s1)<String(e2)&&String(s2)<String(e1);}\nfunction hashPassword_(password,salt){let value=salt+':'+password; for(let i=0;i<AGIO.HASH_ROUNDS;i++) value=sha256_(value); return value;}\nfunction sha256_(value){const bytes=Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,String(value),Utilities.Charset.UTF_8); return Utilities.base64EncodeWebSafe(bytes);}\nfunction json_(obj){return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);}\nfunction bridgeHtml_(){\n  const allowed=JSON.stringify(AGIO.ALLOWED_ORIGINS);\n  return '<!doctype html><html><head><base target=\"_top\"></head><body><script>'+\n    'const ALLOWED='+allowed+';let PARENT_ORIGIN=\"\";'+\n    'window.addEventListener(\"message\",function(e){if(ALLOWED.indexOf(e.origin)<0)return;PARENT_ORIGIN=e.origin;const m=e.data||{};if(m.type!==\"AGIO_API\"||!m.id)return;google.script.run.withSuccessHandler(function(result){parent.postMessage({type:\"AGIO_RESULT\",id:m.id,result:result},PARENT_ORIGIN);}).withFailureHandler(function(err){parent.postMessage({type:\"AGIO_RESULT\",id:m.id,result:{ok:false,error:String(err&&err.message||err)}},PARENT_ORIGIN);}).apiDispatch(m.action,m.payload||{});});'+\n    'parent.postMessage({type:\"AGIO_BRIDGE_READY\"},\"*\");</scr'+'ipt></body></html>';\n}\n";
+
+    // =========================================================================
+    // 3. STATE MANAGEMENT & GOOGLE SHEETS SYNC ENGINE
+    // =========================================================================
+    // Secure Google Apps Script HTMLService bridge. Private API calls are made
+    // through google.script.run inside the Apps Script iframe (not public GET/POST).
+    let AGIO_BRIDGE_FRAME = null;
+    let AGIO_BRIDGE_READY = false;
+    const AGIO_PENDING_CALLS = new Map();
+    let AGIO_CALL_SEQUENCE = 0;
+    window.addEventListener('message', (event) => {
+      if (!AGIO_BRIDGE_FRAME || event.source !== AGIO_BRIDGE_FRAME.contentWindow) return;
+      if (event.data?.type === 'AGIO_BRIDGE_READY') { AGIO_BRIDGE_READY = true; return; }
+      if (event.data?.type === 'AGIO_RESULT' && AGIO_PENDING_CALLS.has(event.data.id)) {
+        const pending = AGIO_PENDING_CALLS.get(event.data.id);
+        AGIO_PENDING_CALLS.delete(event.data.id);
+        clearTimeout(pending.timer);
+        pending.resolve(event.data.result);
+      }
+    });
+
+    const STORAGE_KEY = 'agio_photography_db_v1';
+
+    const app = {
+      state: null,
+      view: 'public',        // 'public' | 'booking' | 'portal' | 'admin'
+      publicPage: 'home',
+      adminTab: 'overview',
+      role: 'Guest',
+      staffUser: null,
+      staffToken: null,
+      staffAccounts: [],
+      portfolioFilter: 'All',
+      serviceFilter: 'All',
+      calView: 'weekly',
+      calDate: new Date().toISOString().split('T')[0],
+      calPhotog: 'all',
+      bookingDraft: {
+        step: 1,
+        serviceId: 'srv_wedding',
+        addonIds: [],
+        photographerId: 'any',
+        locationType: 'In-Studio',
+        locationAddress: '',
+        date: new Date().toISOString().split('T')[0],
+        slot: null,
+        clientName: '',
+        clientEmail: '',
+        clientPhone: '',
+        specialRequirements: '',
+        referenceImageUrls: '',
+        intakeAnswers: {},
+        paymentOption: 'deposit',
+        gateway: 'Paystack',
+        gatewayRef: '',
+        confirmedBooking: null
+      },
+
+      init() {
+        // Always open the public-facing website first. The private workspace is entered
+        // only when an administrator or staff member selects Admin / Staff Login.
+        this.view = 'public';
+        this.publicPage = 'home';
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          try {
+            this.state = JSON.parse(saved);
+          } catch (e) {
+            this.state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+          }
+        } else {
+          this.state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+          this.saveLocal();
+        }
+        this.applyBrandTheme();
+        this.updateGSheetStatusBadge();
+        this.render();
+        if (this.state.settings.googleSheetWebAppUrl) {
+          try {
+            this.ensureBridge();
+            this.apiCall('publicCatalog').then(result => {
+              if (result.ok && result.data) {
+                if (result.data.Services?.length) this.state.services=result.data.Services;
+                if (result.data.Photographers?.length) this.state.photographers=result.data.Photographers;
+                this.saveLocal(false); this.render();
+              }
+            }).catch(() => {});
+          } catch (e) {}
+        }
+      },
+
+      ensureBridge() {
+        const url = String(this.state?.settings?.googleSheetWebAppUrl || '').trim();
+        if (!url || !/^https:\/\/script\.google\.com\/macros\/s\//.test(url)) throw new Error('Enter a valid Google Apps Script Web App URL first.');
+        if (AGIO_BRIDGE_FRAME && AGIO_BRIDGE_FRAME.dataset.baseUrl === url) return;
+        if (AGIO_BRIDGE_FRAME) AGIO_BRIDGE_FRAME.remove();
+        AGIO_BRIDGE_READY = false;
+        AGIO_BRIDGE_FRAME = document.createElement('iframe');
+        AGIO_BRIDGE_FRAME.title = 'Agio secure Google Sheets connection';
+        AGIO_BRIDGE_FRAME.setAttribute('aria-hidden', 'true');
+        AGIO_BRIDGE_FRAME.style.cssText = 'position:absolute;width:1px;height:1px;left:-10000px;top:-10000px;border:0;';
+        AGIO_BRIDGE_FRAME.dataset.baseUrl = url;
+        AGIO_BRIDGE_FRAME.src = url.split('?')[0] + '?bridge=1';
+        document.body.appendChild(AGIO_BRIDGE_FRAME);
+      },
+
+      async apiCall(action, payload = {}) {
+        this.ensureBridge();
+        const id = 'agio_' + (++AGIO_CALL_SEQUENCE) + '_' + Date.now();
+        return new Promise((resolve, reject) => {
+          const timer = setTimeout(() => { AGIO_PENDING_CALLS.delete(id); reject(new Error('Google Sheets connection timed out. Check the Apps Script deployment and allowed website origin.')); }, 20000);
+          AGIO_PENDING_CALLS.set(id, { resolve, reject, timer });
+          const send = () => {
+            if (!AGIO_BRIDGE_READY) { setTimeout(send, 150); return; }
+            AGIO_BRIDGE_FRAME.contentWindow.postMessage({ type: 'AGIO_API', id, action, payload }, '*');
+          };
+          send();
+        });
+      },
+
+      async submitStaffLogin(event) {
+        event.preventDefault();
+        const form = new FormData(event.target);
+        const button = event.target.querySelector('button[type="submit"]');
+        button.disabled = true; button.textContent = 'Signing in...';
+        try {
+          const result = await this.apiCall('login', { email: String(form.get('email') || ''), password: String(form.get('password') || '') });
+          if (!result.ok) throw new Error(result.error || 'Sign-in failed.');
+          this.staffToken = result.token;
+          this.staffUser = result.user;
+          this.role = result.user.role;
+          const data = await this.apiCall('listBookings', { token: this.staffToken });
+          if (!data.ok) throw new Error(data.error || 'Could not load bookings.');
+          this.state.appointments = data.records || [];
+          if (['Super Administrator','Administrator'].includes(this.staffUser.role)) {
+            const staffResult = await this.apiCall('listStaff', { token: this.staffToken });
+            this.staffAccounts = staffResult.ok ? (staffResult.records || []) : [];
+            const boot = await this.apiCall('bootstrapData', { token:this.staffToken, data:{ services:this.state.services, photographers:this.state.photographers, reviews:this.state.reviews, blockedSlots:this.state.blockedSlots, inquiries:this.state.inquiries, settings:this.state.settings, bookings:this.state.appointments, customers:this.state.customers } });
+            if (boot.ok && boot.collections) {
+              const c=boot.collections;
+              if (c.Services?.length) this.state.services=c.Services;
+              if (c.Photographers?.length) this.state.photographers=c.Photographers;
+              if (c.Reviews?.length) this.state.reviews=c.Reviews;
+              if (c.BlockedSlots?.length) this.state.blockedSlots=c.BlockedSlots;
+              if (c.Inquiries?.length) this.state.inquiries=c.Inquiries;
+              if (c.Customers?.length) this.state.customers=c.Customers;
+              if (c.Bookings?.length) this.state.appointments=c.Bookings;
+              if (c.Settings?.length) { const st=c.Settings[0]; delete st.id; this.state.settings={...this.state.settings,...st}; }
+            }
+          } else this.staffAccounts = [];
+          this.saveLocal(false);
+          this.view = 'admin'; this.adminTab = 'overview'; this.render();
+          this.toast('Welcome, ' + result.user.name + '. Your authorized workspace is ready.');
+        } catch (err) {
+          this.toast(err.message || 'Unable to sign in.', 'error');
+          button.disabled = false; button.textContent = 'Sign In';
+        }
+      },
+
+      async refreshStaffBookings() {
+        if (!this.staffToken) return;
+        const data = await this.apiCall('listBookings', { token: this.staffToken });
+        if (!data.ok) throw new Error(data.error || 'Could not refresh bookings.');
+        this.state.appointments = data.records || [];
+        this.render();
+      },
+
+      async logoutStaff() {
+        try { if (this.staffToken) await this.apiCall('logout', { token: this.staffToken }); } catch (e) {}
+        this.staffToken = null; this.staffUser = null; this.role = 'Guest';
+        this.state.appointments = [];
+        this.view = 'public'; this.publicPage = 'home'; this.render();
+        this.toast('You have been signed out.');
+      },
+
+      renderStaffLogin() {
+        return `<section class="max-w-xl mx-auto my-12 sm:my-20 px-4 fade-in">
+          <div class="bg-white border border-stone-200 rounded-3xl shadow-xl overflow-hidden">
+            <div class="bg-[#141414] text-white p-8 sm:p-10">
+              <p class="text-[10px] uppercase tracking-[0.25em] gold-text font-bold mb-3">Agio Photography • Private Workspace</p>
+              <h1 class="font-serif-editorial text-3xl font-semibold">Staff &amp; Admin Login</h1>
+              <p class="text-sm text-stone-300 mt-3 leading-6">This area is for authorized Agio Photography administrators and staff. Sign in with the account provided by the studio administrator.</p>
+            </div>
+            <form onsubmit="app.submitStaffLogin(event)" class="p-8 sm:p-10 space-y-5">
+              <div><label class="block text-xs font-bold mb-2">Work Email</label><input name="email" type="email" autocomplete="username" required class="w-full px-4 py-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-400" placeholder="name@agiophotography.com" /></div>
+              <div><label class="block text-xs font-bold mb-2">Password</label><input name="password" type="password" autocomplete="current-password" required class="w-full px-4 py-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-400" placeholder="Enter your password" /></div>
+              <button type="submit" class="w-full py-3.5 rounded-xl bg-[#141414] text-white text-sm font-bold hover:bg-[#C5A059] transition">Sign In</button>
+              <p class="text-[11px] text-stone-500 leading-5">Customers can browse the public website and make bookings without signing in here. Staff accounts are created only by an authorized administrator. Sessions expire automatically; sign out when using a shared device.</p>
+              <div class="text-center"><button type="button" onclick="app.setView('public','home')" class="text-xs underline text-stone-500">Return to public website</button></div>
+            </form>
+          </div>
+        </section>`;
+      },
+
+      saveLocal(triggerCloudPush = true) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+        if (triggerCloudPush && this.staffToken && ['Super Administrator','Administrator'].includes(this.staffUser?.role)) {
+          this.syncAdminCollections();
+        }
+      },
+
+      async syncAdminCollections() {
+        if (!this.staffToken || this._syncingAdminData) return;
+        this._syncingAdminData = true;
+        try {
+          const collections = [
+            ['Services', this.state.services], ['Photographers', this.state.photographers],
+            ['Reviews', this.state.reviews], ['BlockedSlots', this.state.blockedSlots],
+            ['Inquiries', this.state.inquiries], ['Settings', [{ id:'studio_settings', ...this.state.settings }]]
+          ];
+          for (const [name, records] of collections) {
+            const result = await this.apiCall('saveCollection', { token:this.staffToken, name, records });
+            if (!result.ok) throw new Error(result.error || 'Could not sync ' + name);
+          }
+        } catch (err) { this.toast('Google Sheets sync issue: ' + err.message, 'error'); }
+        finally { this._syncingAdminData = false; }
+      },
+
+      applyBrandTheme() {
+        const color = this.state.settings.accentColor || '#C5A059';
+        document.documentElement.style.setProperty('--accent-gold', color);
+        const nameEl = document.getElementById('header-studio-name');
+        if (nameEl) nameEl.textContent = this.state.settings.studioName;
+      },
+
+      updateGSheetStatusBadge() {
+        const url = this.state.settings.googleSheetWebAppUrl;
+        const dot = document.getElementById('gsheet-dot');
+        const label = document.getElementById('gsheet-status-label');
+        if (!dot || !label) return;
+        if (url && url.startsWith('https://script.google.com')) {
+          dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+          label.textContent = 'Google Sheets: URL Configured';
+        } else {
+          dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+          label.textContent = 'Google Sheet: Local Mode (Click to Link)';
+        }
+      },
+
+      async pushToGoogleSheet(silent = false) {
+        if (!silent) this.toast('Cloud writes are disabled for security. Configure an authenticated backend before enabling administration.', 'error');
+        return false;
+      },
+
+      async pullFromGoogleSheet() {
+        const url = this.state.settings.googleSheetWebAppUrl;
+        if (!url) {
+          this.toast('Enter your Google Apps Script Web App URL first.', 'error');
+          return;
+        }
+        try {
+          this.toast('Pulling latest records from Google Sheets...');
+          const res = await fetch(url);
+          const json = await res.json();
+          if (json.ok && json.data) {
+            if (Array.isArray(json.data.Services)) this.state.services = json.data.Services;
+            if (Array.isArray(json.data.Photographers)) this.state.photographers = json.data.Photographers;
+            this.state.settings.lastSyncedAt = new Date().toISOString();
+            this.saveLocal(false);
+            this.updateGSheetStatusBadge();
+            this.render();
+            this.toast('Public services and photographer listings loaded. Private records were not accessed.');
+          }
+        } catch (err) {
+          this.toast('Could not load the public catalogue. Check the read-only Web App URL and deployment.', 'error');
+        }
+      },
+
+      toast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const el = document.createElement('div');
+        el.className = `flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-2xl border bg-[#141414] text-white ${type === 'error' ? 'border-rose-500/60' : 'border-[#C5A059]/60'} fade-in text-sm`;
+        el.innerHTML = `<span class="${type === 'error' ? 'text-rose-400' : 'text-[#C5A059]'} font-bold">${type === 'error' ? '!' : '✓'}</span><span>${this.esc(message)}</span>`;
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 4200);
+      },
+
+      esc(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      },
+
+      switchRole(newRole) {
+        this.role = 'Guest';
+        this.toast('Role switching has been disabled. Administrative access requires verified server-side sign-in.', 'error');
+        return false;
+      },
+
+      setView(view, subPage = null) {
+        if (view === 'admin' && (!this.staffUser || !this.staffToken)) {
+          this.view = 'admin';
+          document.getElementById('mobile-drawer').classList.add('hidden');
+          this.render();
+          return true;
+        }
+        this.view = view;
+        if (subPage) this.publicPage = subPage;
+        document.getElementById('mobile-drawer').classList.add('hidden');
+        this.render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
+
+      toggleMobileMenu() {
+        document.getElementById('mobile-drawer').classList.toggle('hidden');
+      },
+
+      startBooking(serviceId = '', photographerId = '') {
+        this.bookingDraft.step = 1;
+        this.bookingDraft.confirmedBooking = null;
+        this.bookingDraft.slot = null;
+        if (serviceId) {
+          this.bookingDraft.serviceId = serviceId;
+          this.bookingDraft.addonIds = [];
+        } else if (!this.bookingDraft.serviceId && this.state.services.length) {
+          this.bookingDraft.serviceId = this.state.services[0].id;
+        }
+        if (photographerId) {
+          this.bookingDraft.photographerId = photographerId;
+        }
+        this.setView('booking');
+      },
+
+      // =======================================================================
+      // 4. REAL-TIME SLOT AVAILABILITY & DOUBLE-BOOKING PREVENTION ENGINE
+      // =======================================================================
+      timeToMins(t) {
+        if (!t) return 0;
+        const [h, m] = t.split(':').map(Number);
+        return h * 60 + m;
+      },
+      minsToTime(mins) {
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+      },
+      formatTime12(t24) {
+        if (!t24) return '';
+        const [h, m] = t24.split(':').map(Number);
+        const suffix = h >= 12 ? 'PM' : 'AM';
+        const h12 = h % 12 === 0 ? 12 : h % 12;
+        return `${h12}:${String(m).padStart(2, '0')} ${suffix}`;
+      },
+      getSlotsForPhotographer(dateStr, durationMins, photog, excludeApptId = null) {
+        if (!dateStr || !photog) return [];
+        const dayOfWeek = new Date(dateStr + 'T00:00:00').getDay();
+        const wh = photog.workingHours?.[dayOfWeek];
+        if (!wh || !wh.active) return [];
+
+        const dayBlocks = this.state.blockedSlots.filter(
+          (b) => b.date === dateStr && (b.photographerId === 'all' || b.photographerId === photog.id)
+        );
+        if (dayBlocks.some((b) => b.fullDay)) return [];
+
+        const startMin = this.timeToMins(wh.start);
+        const endMin = this.timeToMins(wh.end);
+        const bStart = wh.breakStart ? this.timeToMins(wh.breakStart) : null;
+        const bEnd = wh.breakEnd ? this.timeToMins(wh.breakEnd) : null;
+
+        const existing = this.state.appointments.filter(
+          (a) => a.date === dateStr && a.photographerId === photog.id && a.status !== 'Cancelled' && a.id !== excludeApptId
+        );
+
+        const slots = [];
+        for (let cur = startMin; cur + durationMins <= endMin; cur += 30) {
+          const slotEnd = cur + durationMins;
+          let conflict = false;
+          let reason = '';
+
+          // Full-day coverage may span the photographer's normal lunch break.
+          // Shorter sessions must avoid the break window.
+          if (durationMins < 360 && bStart !== null && bEnd !== null && cur < bEnd && slotEnd > bStart) {
+            conflict = true;
+            reason = 'Staff Break';
+          }
+          if (!conflict) {
+            for (const blk of dayBlocks) {
+              if (!blk.fullDay && blk.startTime && blk.endTime) {
+                if (cur < this.timeToMins(blk.endTime) && slotEnd > this.timeToMins(blk.startTime)) {
+                  conflict = true;
+                  reason = blk.reason || 'Blocked';
+                  break;
+                }
+              }
+            }
+          }
+          if (!conflict) {
+            for (const ap of existing) {
+              const aS = this.timeToMins(ap.startTime);
+              const aE = aS + Number(ap.durationMinutes || 60);
+              if (cur < aE && slotEnd > aS) {
+                conflict = true;
+                reason = 'Booked';
+                break;
+              }
+            }
+          }
+
+          slots.push({
+            startTime: this.minsToTime(cur),
+            endTime: this.minsToTime(slotEnd),
+            available: !conflict,
+            reason,
+            photographerId: photog.id,
+            photographerName: photog.name
+          });
+        }
+        return slots;
+      },
+
+      // =======================================================================
+      // 5. MAIN VIEW ROUTER & RENDERER
+      // =======================================================================
+      render() {
+        // Highlight nav links
+        document.querySelectorAll('.nav-link').forEach((btn) => {
+          if (this.view === 'public' && btn.dataset.page === this.publicPage) {
+            btn.classList.add('border-[#C5A059]', 'text-[#141414]', 'font-semibold');
+            btn.classList.remove('border-transparent');
+          } else {
+            btn.classList.remove('border-[#C5A059]', 'text-[#141414]', 'font-semibold');
+            btn.classList.add('border-transparent');
+          }
+        });
+
+        const main = document.getElementById('app-main');
+        const footer = document.getElementById('app-footer');
+
+        if (this.view === 'public') {
+          footer.classList.remove('hidden');
+          main.innerHTML = this.renderPublicView();
+          footer.innerHTML = this.renderFooter();
+        } else if (this.view === 'booking') {
+          footer.classList.remove('hidden');
+          main.innerHTML = this.renderBookingWizard();
+          footer.innerHTML = this.renderFooter();
+        } else if (this.view === 'portal') {
+          footer.classList.add('hidden');
+          main.innerHTML = this.renderCustomerPortal();
+        } else if (this.view === 'admin') {
+          footer.classList.add('hidden');
+          main.innerHTML = this.renderAdminDashboard();
+        }
+      },
+
+      renderFooter() {
+        const s = this.state.settings;
+        return `
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+            <div>
+              <h3 class="font-serif-editorial text-xl text-white font-semibold mb-3">${this.esc(s.studioName)}</h3>
+              <p class="text-sm text-stone-400 leading-relaxed mb-5">${this.esc(s.tagline)}. Crafting timeless editorial heirlooms and commercial visuals.</p>
+              <div class="flex gap-2.5">
+                <a href="${this.esc(s.instagram)}" target="_blank" class="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-[#C5A059] text-xs font-semibold transition">Instagram</a>
+                <a href="${this.esc(s.facebook)}" target="_blank" class="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-[#C5A059] text-xs font-semibold transition">Facebook</a>
+                <a href="https://wa.me/${this.esc(s.whatsapp)}" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-xs font-semibold transition">WhatsApp</a>
+              </div>
+            </div>
+            <div>
+              <h4 class="text-white font-semibold text-xs uppercase tracking-wider mb-4">Studio Pages</h4>
+              <ul class="space-y-2 text-sm text-stone-400">
+                <li><button onclick="app.setView('public','portfolio')" class="hover:text-[#C5A059]">Photography Portfolio</button></li>
+                <li><button onclick="app.setView('public','services')" class="hover:text-[#C5A059]">Services &amp; Packages</button></li>
+                <li><button onclick="app.setView('public','photographers')" class="hover:text-[#C5A059]">Meet Our Photographers</button></li>
+                <li><button onclick="app.setView('public','reviews')" class="hover:text-[#C5A059]">Client Testimonials</button></li>
+                <li><button onclick="app.setView('public','faqs')" class="hover:text-[#C5A059]">Policies &amp; FAQs</button></li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="text-white font-semibold text-xs uppercase tracking-wider mb-4">Client Access</h4>
+              <ul class="space-y-2 text-sm text-stone-400">
+                <li><button onclick="app.startBooking()" class="hover:text-[#C5A059]">Book an Online Session</button></li>
+                <li><button onclick="app.setView('portal')" class="hover:text-[#C5A059]">Customer Booking Portal</button></li>
+                <li><a href="${this.esc(s.integrations.zoomMeetingLink)}" target="_blank" class="hover:text-[#C5A059]">Zoom Discovery Call</a></li>
+                <li><button onclick="app.openGoogleSheetModal()" class="hover:text-[#C5A059]">Google Sheets Sync Setup</button></li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="text-white font-semibold text-xs uppercase tracking-wider mb-4">Contact</h4>
+              <ul class="space-y-2.5 text-sm text-stone-400">
+                <li>${this.esc(s.address)}</li>
+                <li>${this.esc(s.phone)}</li>
+                <li>${this.esc(s.email)}</li>
+              </ul>
+            </div>
+          </div>
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-6 border-t border-stone-800 flex flex-col sm:flex-row justify-between text-xs text-stone-500 gap-2">
+            <span>© ${new Date().getFullYear()} ${this.esc(s.studioName)}. All rights reserved.</span>
+            <span>Powered by HTML5 + Vanilla JS + Google Sheets Sync Engine</span>
+          </div>
+        `;
+      },
+
+      // =======================================================================
+      // 6. PUBLIC WEBSITE VIEWS
+      // =======================================================================
+      renderPublicView() {
+        const s = this.state.settings;
+        const cur = s.currency;
+        const activeServices = this.state.services.filter((x) => x.active !== false);
+        const approvedReviews = this.state.reviews.filter((r) => r.status === 'approved');
+
+        if (this.publicPage === 'home') {
+          return `
+            <div class="fade-in">
+              <!-- Hero Section -->
+              <section class="relative min-h-[84vh] flex items-center bg-[#141414] overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1800&q=85" alt="Hero" class="absolute inset-0 w-full h-full object-cover opacity-50" />
+                <div class="absolute inset-0 bg-gradient-to-r from-[#141414]/95 via-[#141414]/65 to-transparent"></div>
+                <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+                  <div class="max-w-2xl">
+                    <span class="inline-block px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.2em] mb-6 border gold-text gold-border bg-black/60">
+                      Editorial • Weddings • Commercial Studio
+                    </span>
+                    <h1 class="font-serif-editorial text-4xl sm:text-6xl lg:text-7xl text-white font-semibold leading-[1.08] mb-6">
+                      ${this.esc(s.tagline)}
+                    </h1>
+                    <p class="text-stone-300 text-base sm:text-lg leading-relaxed mb-9 font-light">
+                      From luxury heirloom weddings and fine-art portraits to architectural and executive campaigns, reserve your session online with real-time photographer availability.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                      <button onclick="app.startBooking()" class="px-8 py-4 rounded-xl text-sm font-semibold uppercase tracking-wider text-white gold-bg shadow-xl hover:opacity-95 transition">
+                        Book an Appointment
+                      </button>
+                      <button onclick="app.setView('public','portfolio')" class="px-8 py-4 rounded-xl text-sm font-semibold uppercase tracking-wider text-white border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition">
+                        View Portfolio
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Featured Categories -->
+              <section class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+                  <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] gold-text mb-2">Curated Disciplines</p>
+                    <h2 class="font-serif-editorial text-3xl sm:text-4xl font-semibold">Featured Photography Categories</h2>
+                  </div>
+                  <button onclick="app.setView('public','services')" class="text-sm font-semibold hover:text-[#C5A059] transition">
+                    View All ${activeServices.length} Services →
+                  </button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  ${[
+                    { title: 'Weddings & Engagements', desc: 'Poetic multi-day documentary & bridal editorials', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80' },
+                    { title: 'Portraits & Family Heirlooms', desc: 'Daylight studio cyclorama & golden-hour sessions', img: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=800&q=80' },
+                    { title: 'Maternity & Motherhood', desc: 'Couture silk drape & studio gown sessions', img: 'https://images.unsplash.com/photo-1544126592-807ade215a0b?auto=format&fit=crop&w=800&q=80' },
+                    { title: 'Commercial, Product & Estates', desc: 'Executive branding, luxury products & architecture', img: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80' }
+                  ].map((c) => `
+                    <div onclick="app.setView('public','services')" class="group cursor-pointer rounded-2xl overflow-hidden bg-white border border-stone-200 shadow-sm hover:shadow-xl transition">
+                      <div class="h-60 overflow-hidden">
+                        <img src="${c.img}" alt="${c.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                      </div>
+                      <div class="p-5">
+                        <h3 class="font-serif-editorial text-lg font-semibold group-hover:text-[#C5A059] transition">${c.title}</h3>
+                        <p class="text-xs text-stone-500 mt-1">${c.desc}</p>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </section>
+
+              <!-- Popular Packages -->
+              <section class="py-20 bg-stone-100/80 border-y border-stone-200">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div class="text-center max-w-2xl mx-auto mb-14">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] gold-text mb-2">Transparent Investment</p>
+                    <h2 class="font-serif-editorial text-3xl sm:text-4xl font-semibold">Popular Photography Packages</h2>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    ${activeServices.slice(0, 3).map((srv) => `
+                      <div class="bg-white rounded-2xl overflow-hidden border border-stone-200 shadow-sm flex flex-col">
+                        <img src="${this.esc(srv.imageUrl)}" alt="${this.esc(srv.name)}" class="h-56 w-full object-cover" />
+                        <div class="p-6 flex-1 flex flex-col">
+                          <div class="flex justify-between items-start gap-2 mb-2">
+                            <h3 class="font-serif-editorial text-xl font-semibold">${this.esc(srv.name)}</h3>
+                            <span class="text-lg font-bold gold-text">${cur}${Number(srv.price).toLocaleString()}</span>
+                          </div>
+                          <p class="text-xs text-stone-600 leading-relaxed mb-4 flex-1">${this.esc(srv.description)}</p>
+                          <div class="text-[11px] bg-stone-50 p-3 rounded-xl mb-5 flex justify-between text-stone-600">
+                            <span>${srv.durationMinutes} mins session</span>
+                            <span class="font-semibold">${srv.depositPercent}% Retainer Deposit</span>
+                          </div>
+                          <button onclick="app.startBooking('${srv.id}')" class="w-full py-3 rounded-xl bg-[#141414] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#C5A059] transition">
+                            Book This Package
+                          </button>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              </section>
+
+              <!-- Recent Projects -->
+              <section class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-end mb-10">
+                  <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] gold-text mb-2">Selected Commissions</p>
+                    <h2 class="font-serif-editorial text-3xl sm:text-4xl font-semibold">Recent Photography Projects</h2>
+                  </div>
+                  <button onclick="app.setView('public','portfolio')" class="text-sm font-semibold hover:text-[#C5A059]">Full Gallery →</button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  ${this.state.portfolio.slice(0, 6).map((item) => `
+                    <div onclick="app.openLightbox('${item.id}')" class="group relative h-80 rounded-2xl overflow-hidden cursor-pointer shadow-sm">
+                      <img src="${this.esc(item.imageUrl)}" alt="${this.esc(item.title)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                      <div class="absolute bottom-5 left-5 right-5 text-white">
+                        <span class="text-[11px] uppercase tracking-widest gold-text font-semibold">${this.esc(item.category)} • ${this.esc(item.location)}</span>
+                        <h4 class="font-serif-editorial text-lg font-medium mt-0.5">${this.esc(item.title)}</h4>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </section>
+
+              <!-- Meet The Photographers -->
+              <section class="py-20 bg-[#141414] text-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div class="text-center max-w-2xl mx-auto mb-14">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] gold-text mb-2">Creative Artists</p>
+                    <h2 class="font-serif-editorial text-3xl sm:text-4xl font-semibold">Meet Our Photographers</h2>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    ${this.state.photographers.map((p) => `
+                      <div class="bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden flex flex-col">
+                        <img src="${this.esc(p.photoUrl)}" alt="${this.esc(p.name)}" class="w-full h-72 object-cover" />
+                        <div class="p-6 flex-1 flex flex-col">
+                          <h3 class="font-serif-editorial text-xl font-semibold">${this.esc(p.name)}</h3>
+                          <p class="text-xs gold-text font-medium mt-0.5">${this.esc(p.title)}</p>
+                          <p class="text-xs text-stone-400 mt-3 leading-relaxed flex-1">${this.esc(p.bio)}</p>
+                          <button onclick="app.startBooking('', '${p.id}')" class="mt-6 w-full py-2.5 rounded-xl border gold-border gold-text hover:bg-[#C5A059] hover:text-white text-xs font-semibold uppercase tracking-wider transition">
+                            Book with ${this.esc(p.name.split(' ')[0])}
+                          </button>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              </section>
+
+              <!-- Testimonials -->
+              <section class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-12">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] gold-text mb-2">Kind Words</p>
+                  <h2 class="font-serif-editorial text-3xl sm:text-4xl font-semibold">Client Testimonials</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  ${approvedReviews.slice(0, 3).map((r) => `
+                    <div class="bg-white p-7 rounded-2xl border border-stone-200 shadow-sm">
+                      <div class="gold-text text-sm mb-3">${'★'.repeat(r.rating || 5)}</div>
+                      <p class="text-sm text-stone-700 italic leading-relaxed mb-5">"${this.esc(r.comment)}"</p>
+                      <div class="border-t border-stone-100 pt-4 flex justify-between text-xs">
+                        <span class="font-semibold text-[#141414]">${this.esc(r.clientName)} — ${this.esc(r.serviceName)}</span>
+                        <span class="text-stone-400">${this.esc(r.date)}</span>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </section>
+            </div>
+          `;
+        }
+
+        if (this.publicPage === 'about') {
+          return `
+            <div class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] gold-text mb-3">Our Heritage &amp; Craft</p>
+                  <h1 class="font-serif-editorial text-4xl sm:text-5xl font-semibold leading-tight mb-6">Light, Emotion &amp; Architectural Precision.</h1>
+                  <p class="text-stone-600 leading-relaxed mb-4">Located in <strong>${this.esc(s.address)}</strong>, ${this.esc(s.studioName)} merges museum-grade fine-art portraiture with seamless digital booking hospitality. Reach our studio concierge directly on <strong>${this.esc(s.phone)}</strong>.</p>
+                  <p class="text-stone-600 leading-relaxed mb-8">Our studio features curated lighting setups, seamless backdrops, and dedicated styling support for portraits, weddings, milestones, and commercial shoots.</p>
+                  <button onclick="app.startBooking()" class="px-7 py-3.5 rounded-xl bg-[#141414] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#C5A059] transition">Reserve a Studio Session</button>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <img src="https://images.unsplash.com/photo-1554048612-b6a482bc67e5?auto=format&fit=crop&w=800&q=80" class="rounded-2xl h-72 w-full object-cover" />
+                  <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80" class="rounded-2xl h-72 w-full object-cover mt-8" />
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        if (this.publicPage === 'portfolio') {
+          const cats = ['All', 'Weddings', 'Portraits', 'Maternity', 'Commercial', 'Events'];
+          const list = this.portfolioFilter === 'All' ? this.state.portfolio : this.state.portfolio.filter((p) => p.category === this.portfolioFilter);
+          return `
+            <div class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in">
+              <div class="text-center max-w-2xl mx-auto mb-10">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] gold-text mb-2">Visual Archive</p>
+                <h1 class="font-serif-editorial text-4xl font-semibold">Photography Portfolio</h1>
+              </div>
+              <div class="flex flex-wrap justify-center gap-2 mb-12">
+                ${cats.map((c) => `
+                  <button onclick="app.portfolioFilter='${c}'; app.render()" class="px-5 py-2 rounded-full text-xs font-semibold transition ${this.portfolioFilter === c ? 'bg-[#141414] text-white' : 'bg-white border border-stone-200 text-stone-700 hover:border-[#C5A059]'}">${c}</button>
+                `).join('')}
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                ${list.map((item) => `
+                  <div onclick="app.openLightbox('${item.id}')" class="group relative h-80 rounded-2xl overflow-hidden cursor-pointer shadow-sm">
+                    <img src="${this.esc(item.imageUrl)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-5 left-5 right-5 text-white">
+                      <span class="text-[11px] uppercase tracking-wider gold-text font-semibold">${this.esc(item.category)}</span>
+                      <h3 class="font-serif-editorial text-lg font-medium">${this.esc(item.title)}</h3>
+                      <p class="text-xs text-stone-300">${this.esc(item.photographer)} • ${this.esc(item.location)}</p>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        if (this.publicPage === 'services') {
+          const cats = ['All', ...new Set(activeServices.map((x) => x.category || 'General'))];
+          const list = this.serviceFilter === 'All' ? activeServices : activeServices.filter((x) => x.category === this.serviceFilter);
+          return `
+            <div class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in">
+              <div class="text-center max-w-2xl mx-auto mb-10">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] gold-text mb-2">Bespoke Commissions</p>
+                <h1 class="font-serif-editorial text-4xl font-semibold">Photography Services &amp; Packages</h1>
+              </div>
+              <div class="flex flex-wrap justify-center gap-2 mb-12">
+                ${cats.map((c) => `
+                  <button onclick="app.serviceFilter='${c}'; app.render()" class="px-4 py-2 rounded-full text-xs font-semibold transition ${this.serviceFilter === c ? 'bg-[#141414] text-white' : 'bg-white border border-stone-200 text-stone-700 hover:border-[#C5A059]'}">${c}</button>
+                `).join('')}
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                ${list.map((srv) => `
+                  <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm flex flex-col">
+                    <div class="h-56 relative">
+                      <img src="${this.esc(srv.imageUrl)}" class="w-full h-full object-cover" />
+                      <span class="absolute top-3 left-3 bg-white/90 text-[#141414] text-[11px] font-semibold px-3 py-1 rounded-full">${this.esc(srv.category)}</span>
+                      <span class="absolute top-3 right-3 bg-[#141414]/85 text-white text-xs px-3 py-1 rounded-full">${srv.durationMinutes} mins</span>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col">
+                      <div class="flex justify-between items-start gap-2 mb-2">
+                        <h3 class="font-serif-editorial text-xl font-semibold">${this.esc(srv.name)}</h3>
+                        <span class="text-xl font-bold gold-text">${cur}${Number(srv.price).toLocaleString()}</span>
+                      </div>
+                      <p class="text-xs text-stone-600 leading-relaxed mb-4 flex-1">${this.esc(srv.description)}</p>
+                      <button onclick="app.startBooking('${srv.id}')" class="w-full py-3 rounded-xl bg-[#141414] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#C5A059] transition">
+                        Book Package (${srv.depositPercent}% Deposit)
+                      </button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        if (this.publicPage === 'photographers') {
+          const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+          return `
+            <div class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in">
+              <div class="text-center max-w-2xl mx-auto mb-14">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] gold-text mb-2">The Roster</p>
+                <h1 class="font-serif-editorial text-4xl font-semibold">Meet Our Photographers</h1>
+              </div>
+              <div class="space-y-10">
+                ${this.state.photographers.map((p) => `
+                  <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm grid grid-cols-1 md:grid-cols-3">
+                    <img src="${this.esc(p.photoUrl)}" class="w-full h-80 md:h-full object-cover" />
+                    <div class="p-8 md:col-span-2 flex flex-col justify-between">
+                      <div>
+                        <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+                          <div>
+                            <h2 class="font-serif-editorial text-2xl font-semibold">${this.esc(p.name)}</h2>
+                            <p class="text-sm gold-text font-medium">${this.esc(p.title)}</p>
+                          </div>
+                          <button onclick="app.startBooking('', '${p.id}')" class="px-5 py-2.5 rounded-xl bg-[#141414] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#C5A059] transition">
+                            Book with ${this.esc(p.name.split(' ')[0])}
+                          </button>
+                        </div>
+                        <p class="text-sm text-stone-600 leading-relaxed mb-5">${this.esc(p.bio)}</p>
+                        <div class="flex flex-wrap gap-2 mb-6">
+                          ${(p.specialties || []).map((sp) => `<span class="px-3 py-1 rounded-full bg-stone-100 text-xs font-medium">${this.esc(sp)}</span>`).join('')}
+                        </div>
+                      </div>
+                      <div class="pt-4 border-t border-stone-100">
+                        <p class="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2">Weekly Working Hours</p>
+                        <div class="grid grid-cols-2 sm:grid-cols-7 gap-2 text-xs">
+                          ${days.map((d, i) => {
+                            const wh = p.workingHours?.[i];
+                            return `<div class="p-2 rounded-lg border text-center ${wh?.active ? 'bg-stone-50 border-stone-200' : 'opacity-40'}"><span class="font-bold block">${d}</span><span class="text-[10px]">${wh?.active ? `${wh.start}-${wh.end}` : 'Off'}</span></div>`;
+                          }).join('')}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        if (this.publicPage === 'reviews') {
+          return `
+            <div class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in">
+              <div class="text-center max-w-2xl mx-auto mb-14">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] gold-text mb-2">Verified Stories</p>
+                <h1 class="font-serif-editorial text-4xl font-semibold">Testimonials &amp; Reviews</h1>
+              </div>
+              <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div class="lg:col-span-2 space-y-5">
+                  ${approvedReviews.length === 0
+                    ? '<div class="bg-white p-8 rounded-2xl border border-stone-200 text-center text-xs text-stone-500">No approved reviews yet. Be the first client to share your experience with Agio Photography!</div>'
+                    : approvedReviews.map((r) => `
+                    <div class="bg-white p-7 rounded-2xl border border-stone-200 shadow-sm">
+                      <div class="flex justify-between mb-2">
+                        <span class="gold-text text-sm">${'★'.repeat(r.rating || 5)}</span>
+                        <span class="text-xs text-stone-400">${this.esc(r.date)}</span>
+                      </div>
+                      <p class="text-sm text-stone-700 italic leading-relaxed mb-4">"${this.esc(r.comment)}"</p>
+                      <p class="text-sm font-semibold">${this.esc(r.clientName)} <span class="text-xs font-normal text-stone-500">— ${this.esc(r.serviceName)}</span></p>
+                    </div>
+                  `).join('')}
+                </div>
+                <div class="bg-white p-7 rounded-2xl border border-stone-200 shadow-sm h-fit">
+                  <h3 class="font-serif-editorial text-xl font-semibold mb-2">Submit a Review</h3>
+                  <p class="text-xs text-stone-500 mb-4">Reviews appear publicly after studio approval.</p>
+                  <form onsubmit="app.handleReviewSubmit(event)" class="space-y-4 text-xs">
+                    <div>
+                      <label class="block font-semibold mb-1">Your Name *</label>
+                      <input name="clientName" required class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300" />
+                    </div>
+                    <div>
+                      <label class="block font-semibold mb-1">Service Package</label>
+                      <select name="serviceName" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300">
+                        ${activeServices.map((srv) => `<option value="${this.esc(srv.name)}">${this.esc(srv.name)}</option>`).join('')}
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block font-semibold mb-1">Rating (1–5 Stars)</label>
+                      <select name="rating" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300">
+                        <option value="5">★★★★★ (5/5)</option>
+                        <option value="4">★★★★☆ (4/5)</option>
+                        <option value="3">★★★☆☆ (3/5)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block font-semibold mb-1">Your Review *</label>
+                      <textarea name="comment" rows="4" required class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300"></textarea>
+                    </div>
+                    <button type="submit" class="w-full py-3 rounded-xl bg-[#141414] text-white font-semibold uppercase tracking-wider hover:bg-[#C5A059]">Submit Review</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        if (this.publicPage === 'contact') {
+          return `
+            <div class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] gold-text mb-2">Concierge</p>
+                  <h1 class="font-serif-editorial text-4xl font-semibold mb-4">Contact Our Studio</h1>
+                  <p class="text-sm text-stone-600 leading-relaxed mb-8">Reach out for custom destination weddings, commercial production quotes, or virtual consultations.</p>
+                  <div class="space-y-4 text-sm mb-8">
+                    <p><strong>Address:</strong> ${this.esc(s.address)}</p>
+                    <p><strong>Phone / WhatsApp:</strong> ${this.esc(s.phone)}</p>
+                    <p><strong>Email:</strong> ${this.esc(s.email)}</p>
+                  </div>
+                  <div class="flex flex-wrap gap-3">
+                    <a href="https://wa.me/${this.esc(s.whatsapp)}" target="_blank" class="px-5 py-3 rounded-xl bg-emerald-600 text-white text-xs font-semibold uppercase tracking-wider">Chat on WhatsApp</a>
+                    <a href="${this.esc(s.integrations.zoomMeetingLink)}" target="_blank" class="px-5 py-3 rounded-xl border border-stone-300 text-xs font-semibold uppercase tracking-wider">Zoom Discovery Call</a>
+                  </div>
+                </div>
+                <div class="bg-white p-8 rounded-2xl border border-stone-200 shadow-sm">
+                  <h3 class="font-serif-editorial text-2xl font-semibold mb-5">Send an Inquiry</h3>
+                  <form onsubmit="app.handleContactSubmit(event)" class="space-y-4 text-xs">
+                    <div class="grid grid-cols-2 gap-4">
+                      <input name="name" required placeholder="Full Name *" class="px-3.5 py-2.5 rounded-xl border border-stone-300" />
+                      <input name="phone" required placeholder="Phone Number *" class="px-3.5 py-2.5 rounded-xl border border-stone-300" />
+                    </div>
+                    <input name="email" type="email" required placeholder="Email Address *" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300" />
+                    <input name="subject" required placeholder="Subject / Shoot Type *" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300" />
+                    <textarea name="message" rows="4" required placeholder="Tell us about your event or vision *" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300"></textarea>
+                    <button type="submit" class="w-full py-3.5 rounded-xl bg-[#141414] text-white font-semibold uppercase tracking-wider hover:bg-[#C5A059]">Send Message</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        // FAQs Page
+        const faqs = [
+          { q: 'How do I reserve my photoshoot date?', a: 'Use our online booking system to select your service, photographer, date, and real-time open slot. Submitting your retainer deposit locks your session immediately.' },
+          { q: 'Can I reschedule my appointment?', a: 'Yes—open the Customer Booking Portal anytime up to 72 hours before your session to move to another open time slot at no charge.' },
+          { q: 'How long until we receive our edited gallery?', a: 'Portraits, corporate, and family galleries are delivered in 7–10 business days. Weddings are delivered in 3–4 weeks.' },
+          { q: 'Which payment gateways do you support?', a: 'We support Paystack, Flutterwave, Stripe, and PayPal for deposits or full package payments.' }
+        ];
+        return `
+          <div class="py-16 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 fade-in">
+            <div class="text-center mb-12">
+              <p class="text-xs font-semibold uppercase tracking-[0.2em] gold-text mb-2">Policies &amp; Guidance</p>
+              <h1 class="font-serif-editorial text-4xl font-semibold">Frequently Asked Questions</h1>
+            </div>
+            <div class="space-y-4 mb-10">
+              ${faqs.map((f) => `
+                <div class="bg-white p-6 rounded-2xl border border-stone-200">
+                  <h3 class="font-semibold text-sm text-[#141414] mb-2">${f.q}</h3>
+                  <p class="text-xs text-stone-600 leading-relaxed">${f.a}</p>
+                </div>
+              `).join('')}
+            </div>
+            <div class="bg-stone-100 p-6 rounded-2xl border border-stone-200 text-xs text-stone-600 space-y-2">
+              <p><strong>Booking Policy:</strong> ${this.esc(s.bookingPolicy)}</p>
+              <p><strong>Cancellation Policy:</strong> ${this.esc(s.cancellationPolicy)}</p>
+            </div>
+          </div>
+        `;
+      },
+
+      handleReviewSubmit(e) {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        this.state.reviews.unshift({
+          id: 'rev_' + Date.now(),
+          clientName: fd.get('clientName'),
+          serviceName: fd.get('serviceName'),
+          rating: Number(fd.get('rating')),
+          comment: fd.get('comment'),
+          date: new Date().toISOString().split('T')[0],
+          status: 'pending'
+        });
+        this.saveLocal();
+        e.target.reset();
+        this.toast('Review submitted! It will appear once approved by an administrator.');
+      },
+
+      handleContactSubmit(e) {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        this.state.inquiries.unshift({
+          id: 'inq_' + Date.now(),
+          name: fd.get('name'),
+          phone: fd.get('phone'),
+          email: fd.get('email'),
+          subject: fd.get('subject'),
+          message: fd.get('message'),
+          createdAt: new Date().toISOString()
+        });
+        this.saveLocal();
+        e.target.reset();
+        this.toast('Inquiry sent! Our studio concierge will respond shortly.');
+      },
+
+      openLightbox(id) {
+        const item = this.state.portfolio.find((p) => p.id === id);
+        if (!item) return;
+        document.getElementById('modal-root').innerHTML = `
+          <div onclick="app.closeModal()" class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+            <div onclick="event.stopPropagation()" class="max-w-4xl w-full">
+              <img src="${this.esc(item.imageUrl)}" class="w-full max-h-[75vh] object-contain rounded-xl" />
+              <div class="mt-4 flex justify-between items-center text-white">
+                <div>
+                  <h3 class="font-serif-editorial text-xl">${this.esc(item.title)}</h3>
+                  <p class="text-xs text-stone-400">${this.esc(item.category)} • ${this.esc(item.location)} • ${this.esc(item.photographer)}</p>
+                </div>
+                <button onclick="app.closeModal()" class="px-4 py-2 rounded-lg bg-white/15 text-xs font-semibold">Close</button>
+              </div>
+            </div>
+          </div>
+        `;
+      },
+
+      closeModal() {
+        document.getElementById('modal-root').innerHTML = '';
+      },
+
+      // =======================================================================
+      // 7. 5-STEP ONLINE BOOKING WIZARD
+      // =======================================================================
+      renderBookingWizard() {
+        const d = this.bookingDraft;
+        const s = this.state.settings;
+        const cur = s.currency;
+        const activeServices = this.state.services.filter((x) => x.active !== false);
+        const srv = activeServices.find((x) => x.id === d.serviceId) || activeServices[0];
+
+        if (d.confirmedBooking) {
+          const cb = d.confirmedBooking;
+          return `
+            <div class="py-16 max-w-3xl mx-auto px-4 fade-in">
+              <div class="bg-white rounded-3xl border border-stone-200 shadow-xl p-8 sm:p-10 text-center">
+                <div class="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4 text-2xl font-bold">✓</div>
+                <span class="text-xs font-bold uppercase tracking-widest gold-text">Booking Reference: ${this.esc(cb.bookingRef)}</span>
+                <h2 class="font-serif-editorial text-3xl font-semibold mt-2">Your Photoshoot Request is Registered</h2>
+                <p class="text-sm text-stone-600 mt-2">Confirmation dispatched to <strong>${this.esc(cb.clientEmail)}</strong> and synced to our studio database.</p>
+                <div class="mt-8 bg-stone-50 rounded-2xl p-6 text-left border border-stone-200 space-y-2.5 text-xs">
+                  <div class="flex justify-between"><span class="text-stone-500">Package:</span><strong>${this.esc(cb.serviceName)}</strong></div>
+                  <div class="flex justify-between"><span class="text-stone-500">Photographer:</span><strong>${this.esc(cb.photographerName)}</strong></div>
+                  <div class="flex justify-between"><span class="text-stone-500">Date &amp; Time:</span><strong>${cb.date} • ${this.formatTime12(cb.startTime)} – ${this.formatTime12(cb.endTime)}</strong></div>
+                  <div class="flex justify-between"><span class="text-stone-500">Location:</span><strong>${this.esc(cb.locationType)} (${this.esc(cb.locationAddress)})</strong></div>
+                  <div class="flex justify-between pt-2 border-t"><span class="text-stone-500">Status:</span><strong>${cb.status} (${cb.paymentStatus})</strong></div>
+                  <div class="flex justify-between"><span class="text-stone-500">Total Package:</span><strong>${cur}${cb.totalAmount.toLocaleString()}</strong></div>
+                  <div class="flex justify-between"><span class="text-stone-500">Balance Due:</span><strong class="gold-text">${cur}${cb.balanceRemaining.toLocaleString()}</strong></div>
+                </div>
+                <div class="mt-8 flex flex-wrap justify-center gap-4">
+                  <button onclick="app.setView('portal')" class="px-7 py-3.5 rounded-xl bg-[#141414] text-white text-xs font-semibold uppercase tracking-wider">Open Customer Portal</button>
+                  <button onclick="app.setView('public','home')" class="px-7 py-3.5 rounded-xl border border-stone-300 text-xs font-semibold uppercase tracking-wider">Back to Home</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        // Compute Pricing
+        const selectedAddons = (srv?.addons || []).filter((a) => d.addonIds.includes(a.id));
+        const addonsTotal = selectedAddons.reduce((sum, a) => sum + Number(a.price || 0), 0);
+        const totalAmount = Number(srv?.price || 0) + addonsTotal;
+        const depositPercent = Number(srv?.depositPercent || 40);
+        const depositAmount = Math.round((totalAmount * depositPercent) / 100);
+        const dueNow = d.paymentOption === 'full' ? totalAmount : depositAmount;
+
+        // Eligible photographers
+        const eligiblePhotogs = (srv?.photographerIds?.length)
+          ? this.state.photographers.filter((p) => srv.photographerIds.includes(p.id))
+          : this.state.photographers;
+
+        // Compute Slots for Step 3
+        let slots = [];
+        if (d.step === 3 && srv) {
+          if (d.photographerId !== 'any') {
+            const p = eligiblePhotogs.find((x) => x.id === d.photographerId) || eligiblePhotogs[0];
+            slots = this.getSlotsForPhotographer(d.date, srv.durationMinutes || 60, p).filter((sl) => sl.available);
+          } else {
+            const map = new Map();
+            eligiblePhotogs.forEach((p) => {
+              this.getSlotsForPhotographer(d.date, srv.durationMinutes || 60, p).filter((sl) => sl.available).forEach((sl) => {
+                if (!map.has(sl.startTime)) map.set(sl.startTime, sl);
+              });
+            });
+            slots = Array.from(map.values()).sort((a, b) => a.startTime.localeCompare(b.startTime));
+          }
+        }
+
+        const steps = ['1. Package', '2. Artist & Venue', '3. Date & Time', '4. Client Brief', '5. Checkout'];
+
+        return `
+          <div class="py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 fade-in">
+            <div class="flex justify-between items-center mb-6">
+              <div>
+                <h1 class="font-serif-editorial text-3xl font-semibold">Online Session Booking</h1>
+                <p class="text-xs text-stone-500">Live availability • Double-booking protection • Google Sheets synced</p>
+              </div>
+              <button onclick="app.setView('public','home')" class="text-xs font-semibold text-stone-500 hover:text-[#141414]">← Cancel</button>
+            </div>
+
+            <div class="grid grid-cols-5 gap-2 mb-8">
+              ${steps.map((label, i) => {
+                const num = i + 1;
+                return `<button onclick="${num < d.step ? `app.bookingDraft.step=${num}; app.render()` : ''}" class="p-3 rounded-xl border text-left text-xs font-semibold ${d.step === num ? 'bg-[#141414] text-white border-[#141414]' : d.step > num ? 'bg-white border-[#C5A059]' : 'bg-stone-100 text-stone-400 border-stone-200'}">${label}</button>`;
+              }).join('')}
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div class="lg:col-span-2 bg-white rounded-2xl border border-stone-200 p-6 sm:p-8 shadow-sm">
+                ${d.step === 1 ? `
+                  <h2 class="font-serif-editorial text-2xl font-semibold mb-5">Select Photography Package</h2>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    ${activeServices.map((item) => `
+                      <div onclick="app.bookingDraft.serviceId='${item.id}'; app.bookingDraft.addonIds=[]; app.bookingDraft.slot=null; app.render()" class="p-4 rounded-xl border-2 cursor-pointer transition ${d.serviceId === item.id ? 'border-[#C5A059] bg-[#C5A059]/5' : 'border-stone-200'}">
+                        <div class="flex justify-between items-start gap-2">
+                          <h3 class="font-semibold text-sm">${this.esc(item.name)}</h3>
+                          <span class="font-bold text-sm gold-text">${cur}${Number(item.price).toLocaleString()}</span>
+                        </div>
+                        <p class="text-xs text-stone-500 mt-1 line-clamp-2">${this.esc(item.description)}</p>
+                        <p class="text-[11px] text-stone-400 mt-2">${item.durationMinutes} mins • ${item.depositPercent}% deposit</p>
+                      </div>
+                    `).join('')}
+                  </div>
+                  ${srv?.addons?.length ? `
+                    <div class="pt-4 border-t border-stone-200 mb-6">
+                      <h3 class="text-xs font-bold uppercase tracking-wider text-stone-500 mb-3">Optional Add-Ons</h3>
+                      <div class="space-y-2">
+                        ${srv.addons.map((ad) => {
+                          const checked = d.addonIds.includes(ad.id);
+                          return `
+                            <label class="flex items-center justify-between p-3 rounded-xl border cursor-pointer ${checked ? 'border-[#C5A059] bg-[#C5A059]/5' : 'border-stone-200'}">
+                              <span class="text-xs font-medium"><input type="checkbox" ${checked ? 'checked' : ''} onchange="app.toggleAddon('${ad.id}')" class="mr-2" />${this.esc(ad.name)}</span>
+                              <span class="text-xs font-bold">+${cur}${ad.price}</span>
+                            </label>
+                          `;
+                        }).join('')}
+                      </div>
+                    </div>
+                  ` : ''}
+                  <div class="flex justify-end">
+                    <button onclick="app.bookingDraft.step=2; app.render()" class="px-7 py-3 rounded-xl bg-[#141414] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#C5A059]">Continue →</button>
+                  </div>
+                ` : ''}
+
+                ${d.step === 2 ? `
+                  <h2 class="font-serif-editorial text-2xl font-semibold mb-5">Photographer &amp; Shoot Location</h2>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    <div onclick="app.bookingDraft.photographerId='any'; app.bookingDraft.slot=null; app.render()" class="p-4 rounded-xl border-2 cursor-pointer ${d.photographerId === 'any' ? 'border-[#C5A059] bg-[#C5A059]/5' : 'border-stone-200'}">
+                      <p class="font-semibold text-sm">Any Available Photographer</p>
+                      <p class="text-xs text-stone-500">Shows all open studio slots</p>
+                    </div>
+                    ${eligiblePhotogs.map((p) => `
+                      <div onclick="app.bookingDraft.photographerId='${p.id}'; app.bookingDraft.slot=null; app.render()" class="p-4 rounded-xl border-2 cursor-pointer flex items-center gap-3 ${d.photographerId === p.id ? 'border-[#C5A059] bg-[#C5A059]/5' : 'border-stone-200'}">
+                        <img src="${this.esc(p.photoUrl)}" class="w-11 h-11 rounded-full object-cover" />
+                        <div>
+                          <p class="font-semibold text-sm">${this.esc(p.name)}</p>
+                          <p class="text-xs text-stone-500 line-clamp-1">${this.esc(p.title)}</p>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                  <div class="grid grid-cols-2 gap-4 mb-4">
+                    ${['In-Studio', 'Outdoor / On-Location'].map((loc) => `
+                      <button type="button" onclick="app.bookingDraft.locationType='${loc}'; app.render()" class="p-4 rounded-xl border-2 text-left ${d.locationType === loc ? 'border-[#C5A059] bg-[#C5A059]/5' : 'border-stone-200'}">
+                        <p class="font-semibold text-sm">${loc}</p>
+                        <p class="text-xs text-stone-500">${loc === 'In-Studio' ? this.esc(s.address) : 'Client venue or outdoor spot'}</p>
+                      </button>
+                    `).join('')}
+                  </div>
+                  ${d.locationType === 'Outdoor / On-Location' ? `
+                    <input value="${this.esc(d.locationAddress)}" oninput="app.bookingDraft.locationAddress=this.value" placeholder="Enter outdoor or venue address *" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm mb-4" />
+                  ` : ''}
+                  <div class="flex justify-between mt-6">
+                    <button onclick="app.bookingDraft.step=1; app.render()" class="px-6 py-3 rounded-xl border border-stone-300 text-xs font-semibold">← Back</button>
+                    <button onclick="app.bookingDraft.step=3; app.render()" class="px-7 py-3 rounded-xl bg-[#141414] text-white text-xs font-semibold uppercase tracking-wider">Pick Date &amp; Time →</button>
+                  </div>
+                ` : ''}
+
+                ${d.step === 3 ? `
+                  <h2 class="font-serif-editorial text-2xl font-semibold mb-2">Select Date &amp; Real-Time Slot</h2>
+                  <p class="text-xs text-stone-500 mb-5">Unavailable, break, and booked slots are automatically locked out.</p>
+                  <input type="date" min="${new Date().toISOString().split('T')[0]}" value="${d.date}" onchange="app.bookingDraft.date=this.value; app.bookingDraft.slot=null; app.render()" class="px-4 py-2.5 rounded-xl border border-stone-300 text-sm font-semibold mb-6" />
+                  ${slots.length === 0 ? `
+                    <div class="p-8 rounded-2xl bg-stone-50 border text-center text-xs text-stone-500">No available appointment times for this package on this date. Please choose another date or photographer.</div>
+                  ` : `
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      ${slots.map((sl, idx) => {
+                        const sel = d.slot?.startTime === sl.startTime;
+                        return `
+                          <button type="button" ${!sl.available ? 'disabled' : ''} onclick="app.selectBookingSlot(${idx})" class="p-3 rounded-xl border text-left transition ${!sl.available ? 'bg-stone-100 text-stone-400 cursor-not-allowed opacity-60' : sel ? 'bg-[#141414] text-white border-[#141414]' : 'bg-white hover:border-[#C5A059]'}">
+                            <span class="font-bold text-sm block">${this.formatTime12(sl.startTime)}</span>
+                            <span class="text-[11px] block">${sl.available ? 'with ' + this.esc(sl.photographerName.split(' ')[0]) : this.esc(sl.reason)}</span>
+                          </button>
+                        `;
+                      }).join('')}
+                    </div>
+                  `}
+                  <div class="flex justify-between mt-8">
+                    <button onclick="app.bookingDraft.step=2; app.render()" class="px-6 py-3 rounded-xl border border-stone-300 text-xs font-semibold">← Back</button>
+                    <button onclick="if(!app.bookingDraft.slot){app.toast('Please pick an open time slot','error');return;} app.bookingDraft.step=4; app.render()" class="px-7 py-3 rounded-xl bg-[#141414] text-white text-xs font-semibold uppercase tracking-wider">Client Details →</button>
+                  </div>
+                ` : ''}
+
+                ${d.step === 4 ? `
+                  <h2 class="font-serif-editorial text-2xl font-semibold mb-5">Client Details &amp; Creative Brief</h2>
+                  <div class="space-y-4 text-xs">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label class="block font-semibold mb-1">Full Name *</label>
+                        <input value="${this.esc(d.clientName)}" oninput="app.bookingDraft.clientName=this.value" placeholder="e.g. Ama Serwaa" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm" />
+                      </div>
+                      <div>
+                        <label class="block font-semibold mb-1">Phone / WhatsApp *</label>
+                        <input value="${this.esc(d.clientPhone)}" oninput="app.bookingDraft.clientPhone=this.value" placeholder="+233 24 000 0000" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm" />
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block font-semibold mb-1">Email Address *</label>
+                      <input type="email" value="${this.esc(d.clientEmail)}" oninput="app.bookingDraft.clientEmail=this.value" placeholder="client@example.com" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm" />
+                    </div>
+                    <div>
+                      <label class="block font-semibold mb-1">Special Photoshoot Requirements</label>
+                      <textarea rows="3" oninput="app.bookingDraft.specialRequirements=this.value" placeholder="Outfits, lighting style, guest count..." class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm">${this.esc(d.specialRequirements)}</textarea>
+                    </div>
+                    <div>
+                      <label class="block font-semibold mb-1">Reference Image / Moodboard URLs (comma-separated)</label>
+                      <input value="${this.esc(d.referenceImageUrls)}" oninput="app.bookingDraft.referenceImageUrls=this.value" placeholder="https://pinterest.com/..." class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm" />
+                    </div>
+                  </div>
+                  <div class="flex justify-between mt-8">
+                    <button onclick="app.bookingDraft.step=3; app.render()" class="px-6 py-3 rounded-xl border border-stone-300 text-xs font-semibold">← Back</button>
+                    <button onclick="if(!app.bookingDraft.clientName||!app.bookingDraft.clientEmail||!app.bookingDraft.clientPhone){app.toast('Please fill in name, email, and phone','error');return;} app.bookingDraft.step=5; app.render()" class="px-7 py-3 rounded-xl bg-[#141414] text-white text-xs font-semibold uppercase tracking-wider">Review &amp; Checkout →</button>
+                  </div>
+                ` : ''}
+
+                ${d.step === 5 ? `
+                  <h2 class="font-serif-editorial text-2xl font-semibold mb-5">Payment &amp; Gateway Verification</h2>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    <div onclick="app.bookingDraft.paymentOption='deposit'; app.render()" class="p-4 rounded-xl border-2 cursor-pointer ${d.paymentOption === 'deposit' ? 'border-[#C5A059] bg-[#C5A059]/5' : 'border-stone-200'}">
+                      <span class="text-xs font-bold uppercase gold-text">Pay Retainer Deposit (${depositPercent}%)</span>
+                      <p class="text-xl font-bold mt-1">${cur}${depositAmount.toLocaleString()}</p>
+                    </div>
+                    <div onclick="app.bookingDraft.paymentOption='full'; app.render()" class="p-4 rounded-xl border-2 cursor-pointer ${d.paymentOption === 'full' ? 'border-[#C5A059] bg-[#C5A059]/5' : 'border-stone-200'}">
+                      <span class="text-xs font-bold uppercase text-emerald-700">Pay Full Amount (100%)</span>
+                      <p class="text-xl font-bold mt-1">${cur}${totalAmount.toLocaleString()}</p>
+                    </div>
+                  </div>
+                  <label class="block text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2">Payment Gateway</label>
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
+                    ${['Paystack', 'Flutterwave', 'Stripe', 'PayPal'].map((gw) => `
+                      <button type="button" onclick="app.bookingDraft.gateway='${gw}'; app.render()" class="py-2.5 rounded-xl border text-xs font-bold ${d.gateway === gw ? 'bg-[#141414] text-white' : 'bg-white border-stone-200'}">${gw}</button>
+                    `).join('')}
+                  </div>
+                  <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-950 space-y-2 mb-6">
+                    <p class="font-bold">Strict Payment Verification Policy</p>
+                    <p>Entering a transaction reference does not verify a payment. Your booking will remain <strong>Pending Verification</strong> until the studio confirms the transaction directly with ${d.gateway}.</p>
+                    <input value="${this.esc(d.gatewayRef)}" oninput="app.bookingDraft.gatewayRef=this.value" placeholder="${d.gateway} Transaction Reference (Optional)" class="w-full px-3 py-2 rounded-lg bg-white border border-amber-300 text-stone-800" />
+                  </div>
+                  <div class="flex justify-between">
+                    <button onclick="app.bookingDraft.step=4; app.render()" class="px-6 py-3 rounded-xl border border-stone-300 text-xs font-semibold">← Back</button>
+                    <button onclick="app.finalizeBooking()" class="px-8 py-3.5 rounded-xl text-white gold-bg text-xs font-semibold uppercase tracking-wider shadow-lg">
+                      Complete Booking (${cur}${dueNow.toLocaleString()})
+                    </button>
+                  </div>
+                ` : ''}
+              </div>
+
+              <!-- Summary Sidebar -->
+              <div class="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm h-fit text-xs space-y-3">
+                <h3 class="font-serif-editorial text-lg font-semibold border-b pb-3">Summary</h3>
+                <div><span class="text-stone-400 block">Package</span><strong class="text-sm">${this.esc(srv?.name)}</strong></div>
+                <div><span class="text-stone-400 block">Photographer</span><strong>${this.esc(d.slot?.photographerName || (d.photographerId === 'any' ? 'Any Available' : this.state.photographers.find((p) => p.id === d.photographerId)?.name))}</strong></div>
+                <div><span class="text-stone-400 block">Date &amp; Time</span><strong>${d.date} ${d.slot ? 'at ' + this.formatTime12(d.slot.startTime) : ''}</strong></div>
+                <div class="pt-3 border-t flex justify-between font-bold text-sm"><span>Total</span><span>${cur}${totalAmount.toLocaleString()}</span></div>
+                <div class="flex justify-between font-bold gold-text"><span>Due Now</span><span>${cur}${dueNow.toLocaleString()}</span></div>
+              </div>
+            </div>
+          </div>
+        `;
+      },
+
+      toggleAddon(id) {
+        const idx = this.bookingDraft.addonIds.indexOf(id);
+        if (idx >= 0) this.bookingDraft.addonIds.splice(idx, 1);
+        else this.bookingDraft.addonIds.push(id);
+        this.render();
+      },
+
+      selectBookingSlot(idx) {
+        const d = this.bookingDraft;
+        const srv = this.state.services.find((x) => x.id === d.serviceId) || this.state.services[0];
+        const eligible = (srv?.photographerIds?.length) ? this.state.photographers.filter((p) => srv.photographerIds.includes(p.id)) : this.state.photographers;
+        let slots = [];
+        if (d.photographerId !== 'any') {
+          const p = eligible.find((x) => x.id === d.photographerId) || eligible[0];
+          slots = this.getSlotsForPhotographer(d.date, srv.durationMinutes || 60, p).filter((sl) => sl.available);
+        } else {
+          const map = new Map();
+          eligible.forEach((p) => {
+            this.getSlotsForPhotographer(d.date, srv.durationMinutes || 60, p).filter((sl) => sl.available).forEach((sl) => {
+              if (!map.has(sl.startTime)) map.set(sl.startTime, sl);
+            });
+          });
+          slots = Array.from(map.values()).sort((a, b) => a.startTime.localeCompare(b.startTime));
+        }
+        d.slot = slots[idx];
+        this.render();
+      },
+
+      async finalizeBooking() {
+        const d = this.bookingDraft;
+        const srv = this.state.services.find((x) => x.id === d.serviceId) || this.state.services[0];
+        const selectedAddons = (srv?.addons || []).filter((a) => d.addonIds.includes(a.id));
+        const totalAmount = Number(srv.price) + selectedAddons.reduce((s, a) => s + Number(a.price), 0);
+        const depositAmount = Math.round((totalAmount * (srv.depositPercent || 40)) / 100);
+        const dueNow = d.paymentOption === 'full' ? totalAmount : depositAmount;
+        const hasReference = Boolean(d.gatewayRef.trim());
+        const amountPaid = 0; // A reference entered by a customer is not proof of payment.
+        const balanceRemaining = totalAmount - amountPaid;
+        const bookingRef = 'LUM-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+
+        const record = {
+          id: 'appt_' + Date.now(),
+          bookingRef,
+          serviceId: srv.id,
+          serviceName: srv.name,
+          durationMinutes: srv.durationMinutes || 60,
+          addons: selectedAddons,
+          photographerId: d.slot.photographerId,
+          photographerName: d.slot.photographerName,
+          locationType: d.locationType,
+          locationAddress: d.locationType === 'In-Studio' ? this.state.settings.address : d.locationAddress,
+          date: d.date,
+          startTime: d.slot.startTime,
+          endTime: d.slot.endTime,
+          clientName: d.clientName.trim(),
+          clientEmail: d.clientEmail.trim(),
+          clientPhone: d.clientPhone.trim(),
+          specialRequirements: d.specialRequirements.trim(),
+          referenceImageUrls: d.referenceImageUrls.split(',').map((x) => x.trim()).filter(Boolean),
+          totalAmount,
+          depositAmount,
+          amountPaid,
+          balanceRemaining,
+          paymentGateway: d.gateway,
+          gatewayReference: d.gatewayRef.trim() || null,
+          paymentStatus: hasReference ? 'Pending Verification' : 'Pending Payment',
+          status: 'Pending',
+          createdAt: new Date().toISOString()
+        };
+
+        // Store every public booking in the central Google Sheets database.
+        try {
+          const saved = await this.apiCall('createBooking', { record });
+          if (!saved.ok) throw new Error(saved.error || 'The booking could not be saved.');
+          Object.assign(record, saved.record || {});
+        } catch (err) {
+          this.toast(err.message || 'Could not save booking to Google Sheets. Please try again.', 'error');
+          return;
+        }
+        this.state.appointments.unshift(record);
+
+        // Upsert Customer CRM
+        const exCust = this.state.customers.find((c) => c.email.toLowerCase() === record.clientEmail.toLowerCase());
+        if (exCust) {
+          exCust.totalBookings = (exCust.totalBookings || 1) + 1;
+          exCust.lastBookingDate = record.date;
+        } else {
+          this.state.customers.unshift({
+            id: 'cust_' + Date.now(),
+            name: record.clientName,
+            email: record.clientEmail,
+            phone: record.clientPhone,
+            preferredService: record.serviceName,
+            lastBookingDate: record.date,
+            totalBookings: 1,
+            notes: record.specialRequirements
+          });
+        }
+
+        this.saveLocal();
+        d.confirmedBooking = record;
+        this.toast(`Booking ${bookingRef} saved to Agio's booking database.`);
+        this.render();
+      },
+
+      // =======================================================================
+      // 8. CUSTOMER BOOKING PORTAL
+      // =======================================================================
+      portalSearch: '',
+      portalEmail: '',
+      portalReference: '',
+      renderCustomerPortal() {
+        const cur = this.state.settings.currency;
+        const email = this.portalEmail.trim().toLowerCase();
+        const reference = this.portalReference.trim().toLowerCase();
+        const hasLookup = Boolean(email && reference);
+        const list = hasLookup
+          ? this.state.appointments.filter((a) => String(a.clientEmail || '').trim().toLowerCase() === email && String(a.bookingRef || '').trim().toLowerCase() === reference)
+          : []; 
+
+        return `
+          <div class="py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+              <div>
+                <span class="text-xs font-semibold uppercase tracking-[0.2em] gold-text">Client Self-Service</span>
+                <h1 class="font-serif-editorial text-3xl font-semibold">Customer Booking Portal</h1>
+              </div>
+              <button onclick="app.startBooking()" class="px-5 py-2.5 rounded-xl bg-[#141414] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#C5A059]">+ New Session</button>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-stone-200 mb-8">
+              <label class="block text-[11px] font-semibold uppercase tracking-wider text-stone-500 mb-1">Find your booking</label>
+              <p class="text-xs text-stone-500 mb-3">Enter the email address used for the booking and its exact booking reference.</p>
+              <div class="grid sm:grid-cols-2 gap-3">
+                <input type="email" value="${this.esc(this.portalEmail)}" oninput="app.portalEmail=this.value; app.render()" placeholder="Your booking email" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm" />
+                <input value="${this.esc(this.portalReference)}" oninput="app.portalReference=this.value; app.render()" placeholder="Booking reference (e.g. LUM-ABCDE)" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm" />
+              </div>
+            </div>
+
+            ${list.length === 0 ? `
+              <div class="bg-white rounded-2xl border border-stone-200 p-12 text-center">
+                <h3 class="font-serif-editorial text-xl font-semibold mb-2">No Appointments Found</h3>
+                <p class="text-xs text-stone-500 mb-6">Enter both your booking email and exact reference to retrieve your appointment. If you have not booked yet, you can book a session online.</p>
+                <button onclick="app.startBooking()" class="px-6 py-3 rounded-xl gold-bg text-white text-xs font-semibold uppercase">Book Now</button>
+              </div>
+            ` : `
+              <div class="space-y-4">
+                ${list.map((a) => `
+                  <div class="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-stone-100">
+                      <div>
+                        <span class="font-mono font-bold text-xs gold-text">${this.esc(a.bookingRef)}</span>
+                        <span class="ml-2 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-stone-100">${this.esc(a.status)} • ${this.esc(a.paymentStatus)}</span>
+                        <h3 class="font-serif-editorial text-xl font-semibold mt-1">${this.esc(a.serviceName)}</h3>
+                        <p class="text-xs text-stone-500">${this.esc(a.clientName)} • ${a.date} at ${this.formatTime12(a.startTime)} with ${this.esc(a.photographerName)}</p>
+                      </div>
+                      <div class="flex flex-wrap gap-2">
+                        <button onclick="app.openReceiptModal('${a.id}')" class="px-3.5 py-2 rounded-xl border border-stone-300 text-xs font-semibold">Print Receipt</button>
+                        ${a.status !== 'Cancelled' ? `
+                          <button onclick="app.openRescheduleModal('${a.id}')" class="px-3.5 py-2 rounded-xl border gold-border gold-text text-xs font-semibold">Reschedule</button>
+                          <button onclick="app.cancelBooking('${a.id}')" class="px-3.5 py-2 rounded-xl border border-rose-200 text-rose-600 text-xs font-semibold">Cancel</button>
+                        ` : ''}
+                      </div>
+                    </div>
+                    <div class="pt-4 grid grid-cols-3 gap-4 text-xs">
+                      <div><span class="text-stone-400 block">Total</span><strong>${cur}${Number(a.totalAmount).toLocaleString()}</strong></div>
+                      <div><span class="text-stone-400 block">Paid</span><strong class="text-emerald-700">${cur}${Number(a.amountPaid || 0).toLocaleString()}</strong></div>
+                      <div><span class="text-stone-400 block">Remaining</span><strong class="gold-text">${cur}${Number(a.balanceRemaining || 0).toLocaleString()}</strong></div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          </div>
+        `;
+      },
+
+      cancelBooking(id) {
+        const a = this.state.appointments.find((x) => x.id === id);
+        if (!a) return;
+        a.status = 'Cancelled';
+        this.saveLocal();
+        this.toast(`Booking ${a.bookingRef} cancelled.`);
+        this.render();
+      },
+
+      openRescheduleModal(id) {
+        const a = this.state.appointments.find((x) => x.id === id);
+        if (!a) return;
+        const photog = this.state.photographers.find((p) => p.id === a.photographerId);
+        const renderSlotsFor = (dateVal) => {
+          const slots = this.getSlotsForPhotographer(dateVal, a.durationMinutes || 60, photog, a.id).filter((s) => s.available);
+          return slots.length
+            ? slots.map((s) => `<button onclick="app.confirmReschedule('${a.id}','${dateVal}','${s.startTime}','${s.endTime}')" class="py-2 px-3 rounded-lg border hover:border-[#C5A059] text-xs font-semibold">${this.formatTime12(s.startTime)}</button>`).join('')
+            : '<p class="text-xs text-stone-400 col-span-3">No open slots on this date.</p>';
+        };
+        document.getElementById('modal-root').innerHTML = `
+          <div onclick="app.closeModal()" class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+            <div onclick="event.stopPropagation()" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+              <h3 class="font-serif-editorial text-xl font-semibold mb-1">Reschedule ${this.esc(a.bookingRef)}</h3>
+              <p class="text-xs text-stone-500 mb-4">${this.esc(this.state.settings.cancellationPolicy)}</p>
+              <input type="date" min="${new Date().toISOString().split('T')[0]}" value="${a.date}" onchange="document.getElementById('resched-slots').innerHTML = (${renderSlotsFor.toString()})(this.value)" class="w-full px-3.5 py-2 rounded-xl border mb-4 text-sm" />
+              <div id="resched-slots" class="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto mb-4">${renderSlotsFor(a.date)}</div>
+              <button onclick="app.closeModal()" class="w-full py-2 border rounded-xl text-xs font-semibold">Close</button>
+            </div>
+          </div>
+        `;
+      },
+
+      confirmReschedule(id, date, startTime, endTime) {
+        const a = this.state.appointments.find((x) => x.id === id);
+        if (!a) return;
+        a.date = date;
+        a.startTime = startTime;
+        a.endTime = endTime;
+        a.status = 'Confirmed';
+        this.saveLocal();
+        this.closeModal();
+        this.toast('Appointment rescheduled!');
+        this.render();
+      },
+
+      openReceiptModal(id) {
+        const a = this.state.appointments.find((x) => x.id === id);
+        if (!a) return;
+        const s = this.state.settings;
+        const cur = s.currency;
+        document.getElementById('modal-root').innerHTML = `
+          <div onclick="app.closeModal()" class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+            <div onclick="event.stopPropagation()" class="bg-white rounded-2xl max-w-lg w-full p-8 shadow-2xl">
+              <div class="flex justify-between items-start border-b pb-4 mb-5">
+                <div>
+                  <h3 class="font-serif-editorial text-2xl font-bold">${this.esc(s.studioName)}</h3>
+                  <p class="text-xs text-stone-500">${this.esc(s.address)}</p>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-stone-100 text-xs font-mono font-bold">${this.esc(a.bookingRef)}</span>
+              </div>
+              <div class="space-y-2 text-xs mb-6">
+                <div class="flex justify-between"><span class="text-stone-500">Client:</span><strong>${this.esc(a.clientName)} (${this.esc(a.clientEmail)})</strong></div>
+                <div class="flex justify-between"><span class="text-stone-500">Package:</span><strong>${this.esc(a.serviceName)}</strong></div>
+                <div class="flex justify-between"><span class="text-stone-500">Session Date:</span><strong>${a.date} • ${this.formatTime12(a.startTime)}</strong></div>
+                <div class="flex justify-between"><span class="text-stone-500">Photographer:</span><strong>${this.esc(a.photographerName)}</strong></div>
+                <div class="flex justify-between pt-3 border-t text-sm"><span>Total Amount:</span><strong>${cur}${Number(a.totalAmount).toLocaleString()}</strong></div>
+                <div class="flex justify-between text-emerald-700 font-semibold"><span>Verified Paid:</span><span>${cur}${Number(a.amountPaid || 0).toLocaleString()}</span></div>
+                <div class="flex justify-between gold-text font-bold"><span>Balance Due:</span><span>${cur}${Number(a.balanceRemaining || 0).toLocaleString()}</span></div>
+              </div>
+              <div class="flex justify-end gap-2 no-print">
+                <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-[#141414] text-white text-xs font-semibold">Print / PDF</button>
+                <button onclick="app.closeModal()" class="px-4 py-2 rounded-xl border text-xs font-semibold">Close</button>
+              </div>
+            </div>
+          </div>
+        `;
+      },
+
+      // =======================================================================
+      // 9. GOOGLE SHEETS TWO-WAY SYNC MODAL (COPYABLE CODE.GS + URL LINKER)
+      // =======================================================================
+      openGoogleSheetModal() {
+        const url = this.state.settings.googleSheetWebAppUrl || '';
+        document.getElementById('modal-root').innerHTML = `
+          <div onclick="app.closeModal()" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+            <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl border border-stone-200 my-8">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-widest text-emerald-700">Two-Way Cloud Database</span>
+                  <h2 class="font-serif-editorial text-2xl font-semibold">Link Your Google Sheet</h2>
+                </div>
+                <button onclick="app.closeModal()" class="text-stone-400 hover:text-stone-800 text-lg font-bold">✕</button>
+              </div>
+
+              <p class="text-xs text-stone-600 leading-relaxed mb-4">
+Connect the Apps Script backend below. Public bookings are written to the Bookings and Customers tabs. Staff accounts and private dashboard data are protected by server-issued login sessions and role checks.
+              </p>
+
+              <div class="mb-5">
+                <label class="block text-xs font-bold text-stone-800 mb-1">Google Apps Script Web App URL</label>
+                <div class="flex flex-col sm:flex-row gap-2">
+                  <input id="gsheet-url-input" value="${this.esc(url)}" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="flex-1 px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs font-mono" />
+                  <button onclick="app.saveGoogleSheetUrl()" class="px-5 py-2.5 rounded-xl bg-[#141414] text-white text-xs font-semibold hover:bg-[#C5A059]">Save &amp; Link</button>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-2 mb-6">
+                <button onclick="app.pullFromGoogleSheet()" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold hover:bg-stone-50">↓ Load Public Catalogue</button>
+                <button onclick="app.copyAppsScript()" class="px-4 py-2 rounded-xl bg-stone-100 text-stone-800 text-xs font-semibold hover:bg-stone-200">Copy Secure Backend Code.gs</button>
+              </div>
+
+              <div class="bg-stone-900 text-stone-200 p-4 rounded-2xl text-[11px] font-mono overflow-x-auto max-h-60">
+                <pre>${this.esc(GOOGLE_APPS_SCRIPT_CODE)}</pre>
+              </div>
+            </div>
+          </div>
+        `;
+      },
+
+      saveGoogleSheetUrl() {
+        const val = document.getElementById('gsheet-url-input').value.trim();
+        this.state.settings.googleSheetWebAppUrl = val;
+        this.saveLocal(false);
+        this.updateGSheetStatusBadge();
+        this.toast(val ? 'Google Apps Script URL saved. Secure bridge will connect when deployed.' : 'Google Sheet URL cleared.');
+        if (val) { try { this.ensureBridge(); } catch (e) { this.toast(e.message, 'error'); } }
+      },
+
+      copyAppsScript() {
+        navigator.clipboard?.writeText(GOOGLE_APPS_SCRIPT_CODE);
+        this.toast('Google Apps Script (Code.gs) copied to clipboard!');
+      },
+
+      // =======================================================================
+      // 10. ADMINISTRATIVE DASHBOARD
+      // =======================================================================
+      renderAdminDashboard() {
+        if (!this.staffUser || !this.staffToken) return this.renderStaffLogin();
+        const cur = this.state.settings.currency;
+        const today = new Date().toISOString().split('T')[0];
+        const appts = this.state.appointments;
+
+        let tabs = [
+          { id: 'overview', label: 'Overview' },
+          { id: 'bookings', label: 'Bookings & Payments' },
+          { id: 'calendar', label: 'Calendar & Blocks' },
+          { id: 'services', label: 'Services & Packages' },
+          { id: 'staff', label: 'Photographers & Staff' },
+          { id: 'customers', label: 'Customer CRM' },
+          { id: 'reviews', label: 'Reviews Moderation' },
+          { id: 'reports', label: 'Reports & CSV' },
+          { id: 'settings', label: 'Settings & Google Sheet' }
+        ];
+        if (this.staffUser.role === 'Photographer' || this.staffUser.role === 'Staff') {
+          tabs = tabs.filter(t => ['overview','bookings','calendar'].includes(t.id));
+          if (!tabs.some(t => t.id === this.adminTab)) this.adminTab = 'overview';
+        }
+
+        return `
+          <div class="min-h-[85vh] bg-stone-100/70 flex flex-col lg:flex-row fade-in">
+            <aside class="w-full lg:w-64 bg-[#141414] text-stone-300 p-4 lg:p-5 shrink-0">
+              <div class="mb-5 px-2">
+                <p class="text-[10px] uppercase tracking-[0.2em] gold-text font-semibold">Studio Console</p>
+                <h2 class="font-serif-editorial text-lg text-white font-semibold">${this.esc(this.staffUser.name)}</h2>
+                <p class="text-[10px] text-stone-400 mt-1">${this.esc(this.staffUser.role)} · ${this.esc(this.staffUser.email)}</p>
+                <button onclick="app.logoutStaff()" class="mt-3 text-[11px] text-rose-300 hover:text-white underline">Sign out</button>
+              </div>
+              <nav class="flex lg:flex-col gap-1.5 overflow-x-auto pb-2 lg:pb-0">
+                ${tabs.map((t) => `
+                  <button onclick="app.adminTab='${t.id}'; app.render()" class="px-3.5 py-2.5 rounded-xl text-xs font-medium text-left whitespace-nowrap transition ${this.adminTab === t.id ? 'gold-bg text-white font-semibold' : 'hover:bg-stone-800'}">
+                    ${t.label}
+                  </button>
+                `).join('')}
+              </nav>
+            </aside>
+
+            <div class="flex-1 p-4 sm:p-8 max-w-7xl overflow-x-hidden">
+              ${this.adminTab === 'overview' ? this.renderAdminOverview(cur, today, appts) : ''}
+              ${this.adminTab === 'bookings' ? this.renderAdminBookings(cur, appts) : ''}
+              ${this.adminTab === 'calendar' ? this.renderAdminCalendar(appts) : ''}
+              ${this.adminTab === 'services' ? this.renderAdminServices(cur) : ''}
+              ${this.adminTab === 'staff' ? this.renderAdminStaff(appts) : ''}
+              ${this.adminTab === 'customers' ? this.renderAdminCustomers(cur, appts) : ''}
+              ${this.adminTab === 'reviews' ? this.renderAdminReviews() : ''}
+              ${this.adminTab === 'reports' ? this.renderAdminReports(cur, appts) : ''}
+              ${this.adminTab === 'settings' ? this.renderAdminSettings() : ''}
+            </div>
+          </div>
+        `;
+      },
+
+      renderAdminOverview(cur, today, appts) {
+        const rev = appts.reduce((s, a) => s + Number(a.amountPaid || 0), 0);
+        const out = appts.filter((a) => a.status !== 'Cancelled').reduce((s, a) => s + Number(a.balanceRemaining || 0), 0);
+        const kpis = [
+          { label: 'Total Bookings', val: appts.length },
+          { label: "Today's Shoots", val: appts.filter((a) => a.date === today && a.status !== 'Cancelled').length },
+          { label: 'Upcoming', val: appts.filter((a) => a.date >= today && a.status !== 'Cancelled').length },
+          { label: 'Pending', val: appts.filter((a) => a.status === 'Pending').length },
+          { label: 'Confirmed', val: appts.filter((a) => a.status === 'Confirmed').length },
+          { label: 'Cancelled', val: appts.filter((a) => a.status === 'Cancelled').length },
+          { label: 'Verified Revenue', val: `${cur}${rev.toLocaleString()}` },
+          { label: 'Outstanding', val: `${cur}${out.toLocaleString()}` },
+          { label: 'Customers', val: this.state.customers.length }
+        ];
+        return `
+          <div class="space-y-6">
+            <div class="flex flex-wrap justify-between items-center gap-4">
+              <h1 class="font-serif-editorial text-2xl sm:text-3xl font-semibold">Executive Overview</h1>
+              <button onclick="app.openGoogleSheetModal()" class="px-4 py-2 rounded-xl bg-emerald-700 text-white text-xs font-semibold">Google Sheet Sync Settings</button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+              ${kpis.map((k) => `
+                <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm">
+                  <p class="text-[11px] font-semibold uppercase tracking-wider text-stone-400">${k.label}</p>
+                  <p class="text-2xl font-bold mt-2">${k.val}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      },
+
+      renderAdminBookings(cur, appts) {
+        return `
+          <div class="space-y-6">
+            <div class="flex justify-between items-center">
+              <h1 class="font-serif-editorial text-2xl font-semibold">Appointments &amp; Payments</h1>
+              <button onclick="app.startBooking()" class="px-4 py-2 rounded-xl bg-[#141414] text-white text-xs font-semibold">+ New Booking</button>
+            </div>
+            <div class="bg-white rounded-2xl border border-stone-200 overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-stone-50 border-b text-stone-500 uppercase">
+                  <tr>
+                    <th class="py-3 px-4">Ref / Client</th>
+                    <th class="py-3 px-4">Package &amp; Artist</th>
+                    <th class="py-3 px-4">Date &amp; Time</th>
+                    <th class="py-3 px-4">Paid / Balance</th>
+                    <th class="py-3 px-4">Status</th>
+                    <th class="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y">
+                  ${appts.map((a) => `
+                    <tr>
+                      <td class="py-3 px-4"><strong class="gold-text block">${this.esc(a.bookingRef)}</strong>${this.esc(a.clientName)}</td>
+                      <td class="py-3 px-4"><strong>${this.esc(a.serviceName)}</strong><span class="block text-stone-500">${this.esc(a.photographerName)}</span></td>
+                      <td class="py-3 px-4">${a.date} • ${this.formatTime12(a.startTime)}</td>
+                      <td class="py-3 px-4"><span class="text-emerald-700 font-bold block">Paid: ${cur}${Number(a.amountPaid || 0).toLocaleString()}</span>Bal: ${cur}${Number(a.balanceRemaining || 0).toLocaleString()}</td>
+                      <td class="py-3 px-4">
+                        <select onchange="app.updateApptStatus('${a.id}', this.value)" class="border rounded-lg px-2 py-1 font-semibold">
+                          ${['Pending', 'Confirmed', 'Completed', 'Cancelled'].map((st) => `<option value="${st}" ${a.status === st ? 'selected' : ''}>${st}</option>`).join('')}
+                        </select>
+                      </td>
+                      <td class="py-3 px-4 text-right space-x-2">
+                        <button onclick="app.openRecordPaymentModal('${a.id}')" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 font-semibold">Verify Payment</button>
+                        <button onclick="app.openReceiptModal('${a.id}')" class="px-2.5 py-1.5 rounded-lg bg-stone-100 font-semibold">Receipt</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      },
+
+      async updateApptStatus(id, status) {
+        const a = this.state.appointments.find((x) => x.id === id);
+        if (!a || !this.staffToken) return;
+        try {
+          const result = await this.apiCall('updateBooking', { token: this.staffToken, id, patch: { status } });
+          if (!result.ok) throw new Error(result.error || 'Update failed.');
+          Object.assign(a, result.record || { status });
+          this.toast(`Booking ${a.bookingRef} marked ${status}`);
+          this.render();
+        } catch (err) { this.toast(err.message, 'error'); await this.refreshStaffBookings().catch(()=>{}); }
+      },
+
+      openRecordPaymentModal(id) {
+        const a = this.state.appointments.find((x) => x.id === id);
+        if (!a) return;
+        document.getElementById('modal-root').innerHTML = `
+          <div onclick="app.closeModal()" class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+            <div onclick="event.stopPropagation()" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+              <h3 class="font-serif-editorial text-xl font-semibold mb-2">Record Verified Payment</h3>
+              <form onsubmit="app.saveVerifiedPayment(event, '${a.id}')" class="space-y-3 text-xs">
+                <input name="amount" type="number" required value="${a.balanceRemaining || a.depositAmount}" class="w-full px-3 py-2 rounded-xl border" />
+                <select name="method" class="w-full px-3 py-2 rounded-xl border">
+                  <option>Paystack</option><option>Flutterwave</option><option>Stripe</option><option>PayPal</option><option>Bank Transfer</option>
+                </select>
+                <input name="reference" required placeholder="Verified Transaction Reference ID *" class="w-full px-3 py-2 rounded-xl border" />
+                <div class="flex justify-end gap-2 pt-2">
+                  <button type="button" onclick="app.closeModal()" class="px-4 py-2 border rounded-xl">Cancel</button>
+                  <button type="submit" class="px-5 py-2 bg-emerald-700 text-white rounded-xl font-semibold">Confirm Payment</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `;
+      },
+
+      saveVerifiedPayment(e, id) {
+        e.preventDefault();
+        this.toast('Payment recording is disabled until an authenticated backend verifies and authorizes the transaction.', 'error');
+        return false;
+        const fd = new FormData(e.target);
+        const a = this.state.appointments.find((x) => x.id === id);
+        if (!a) return;
+        const amt = Number(fd.get('amount'));
+        const method = String(fd.get('method') || '').trim();
+        const reference = String(fd.get('reference') || '').trim();
+        const remaining = Number(a.balanceRemaining ?? (Number(a.totalAmount) - Number(a.amountPaid || 0)));
+        if (!Number.isFinite(amt) || amt <= 0 || amt > remaining) {
+          this.toast('Enter a valid amount that does not exceed the outstanding balance.', 'error');
+          return;
+        }
+        if (!reference || !method) {
+          this.toast('Payment method and transaction reference are required.', 'error');
+          return;
+        }
+        const duplicate = this.state.appointments.some((item) =>
+          (item.gatewayReference && String(item.gatewayReference).toLowerCase() === reference.toLowerCase()) ||
+          (item.paymentHistory || []).some((payment) => String(payment.reference || '').toLowerCase() === reference.toLowerCase())
+        );
+        if (duplicate) {
+          this.toast('This transaction reference has already been recorded.', 'error');
+          return;
+        }
+        a.amountPaid = Number(a.amountPaid || 0) + amt;
+        a.balanceRemaining = Math.max(0, Number(a.totalAmount) - a.amountPaid);
+        a.paymentStatus = a.balanceRemaining === 0 ? 'Paid in Full' : 'Deposit Paid';
+        a.paymentHistory = [...(a.paymentHistory || []), { amount: amt, method, reference, recordedAt: new Date().toISOString(), recordedBy: this.role || 'Administrator' }];
+        if (a.status === 'Pending') a.status = 'Confirmed';
+        this.saveLocal();
+        this.closeModal();
+        this.toast('Payment recorded. Ensure the transaction was independently verified.');
+        this.render();
+      },
+
+      renderAdminCalendar(appts) {
+        const activeAppts = appts.filter((a) => a.status !== 'Cancelled' && (this.calPhotog === 'all' || a.photographerId === this.calPhotog));
+        const start = new Date(this.calDate + 'T00:00:00');
+        const weekDays = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date(start);
+          d.setDate(start.getDate() + i);
+          return d.toISOString().split('T')[0];
+        });
+
+        return `
+          <div class="space-y-6">
+            <div class="flex flex-wrap justify-between items-center gap-3">
+              <h1 class="font-serif-editorial text-2xl font-semibold">Studio &amp; Staff Calendar</h1>
+              <div class="flex flex-wrap gap-2">
+                <select onchange="app.calPhotog=this.value; app.render()" class="px-3 py-2 rounded-xl bg-white border text-xs font-semibold">
+                  <option value="all">All Photographers</option>
+                  ${this.state.photographers.map((p) => `<option value="${p.id}" ${this.calPhotog === p.id ? 'selected' : ''}>${this.esc(p.name)}</option>`).join('')}
+                </select>
+                <input type="date" value="${this.calDate}" onchange="app.calDate=this.value; app.render()" class="px-3 py-2 rounded-xl bg-white border text-xs font-semibold" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-7 gap-3">
+              ${weekDays.map((dStr) => {
+                const list = activeAppts.filter((a) => a.date === dStr);
+                const blocked = this.state.blockedSlots.some((b) => b.date === dStr && b.fullDay);
+                return `
+                  <div class="bg-white rounded-2xl border p-3.5 min-h-[200px] ${blocked ? 'border-rose-300 bg-rose-50/40' : 'border-stone-200'}">
+                    <span class="text-[11px] font-bold gold-text block">${new Date(dStr + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short' })}</span>
+                    <span class="text-xs font-semibold block pb-2 mb-2 border-b">${dStr}</span>
+                    ${blocked ? '<span class="block text-[10px] font-bold text-rose-600 mb-2">Blocked Day</span>' : ''}
+                    <div class="space-y-2">
+                      ${list.map((a) => `<div class="p-2 rounded-lg bg-[#141414] text-white text-[11px]"><strong class="gold-text block">${this.formatTime12(a.startTime)}</strong>${this.esc(a.clientName)}</div>`).join('')}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-stone-200">
+              <h3 class="font-serif-editorial text-lg font-semibold mb-4">Block Unavailable Date</h3>
+              <form onsubmit="app.addBlockedDate(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+                <select name="photographerId" class="px-3 py-2 rounded-xl border">
+                  <option value="all">All Studio Staff</option>
+                  ${this.state.photographers.map((p) => `<option value="${p.id}">${this.esc(p.name)}</option>`).join('')}
+                </select>
+                <input name="date" type="date" required value="${this.calDate}" class="px-3 py-2 rounded-xl border" />
+                <input name="reason" required placeholder="Reason (Holiday, Maintenance...)" class="px-3 py-2 rounded-xl border" />
+                <button type="submit" class="px-4 py-2 rounded-xl bg-rose-600 text-white font-semibold">+ Block Date</button>
+              </form>
+              <div class="mt-4 space-y-2 text-xs">
+                ${this.state.blockedSlots.map((b, i) => `
+                  <div class="flex justify-between p-2.5 rounded-xl bg-stone-50 border">
+                    <span><strong>${b.date}</strong> — ${this.esc(b.reason)}</span>
+                    <button onclick="app.state.blockedSlots.splice(${i},1); app.saveLocal(); app.render()" class="text-rose-600 font-semibold">Remove</button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      },
+
+      addBlockedDate(e) {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        this.state.blockedSlots.push({
+          id: 'blk_' + Date.now(),
+          photographerId: fd.get('photographerId'),
+          date: fd.get('date'),
+          fullDay: true,
+          reason: fd.get('reason')
+        });
+        this.saveLocal();
+        this.toast('Date blocked on studio calendar!');
+        this.render();
+      },
+
+      renderAdminServices(cur) {
+        return `
+          <div class="space-y-6">
+            <div class="flex justify-between items-center">
+              <h1 class="font-serif-editorial text-2xl font-semibold">Photography Services (${this.state.services.length})</h1>
+              <button onclick="app.openServiceFormModal()" class="px-4 py-2 rounded-xl bg-[#141414] text-white text-xs font-semibold">+ Add Service</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+              ${this.state.services.map((s, idx) => `
+                <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm flex flex-col">
+                  <img src="${this.esc(s.imageUrl)}" class="h-44 w-full object-cover" />
+                  <div class="p-5 flex-1 flex flex-col">
+                    <div class="flex justify-between items-start gap-2">
+                      <h3 class="font-serif-editorial text-lg font-semibold">${this.esc(s.name)}</h3>
+                      <span class="font-bold gold-text">${cur}${Number(s.price).toLocaleString()}</span>
+                    </div>
+                    <p class="text-xs text-stone-500 mt-1 line-clamp-2 flex-1">${this.esc(s.description)}</p>
+                    <div class="mt-4 pt-3 border-t flex justify-between text-xs">
+                      <span>${s.durationMinutes}m • ${s.depositPercent}% dep</span>
+                      <div class="space-x-2">
+                        <button onclick="app.openServiceFormModal('${s.id}')" class="font-semibold gold-text">Edit</button>
+                        <button onclick="app.state.services.splice(${idx},1); app.saveLocal(); app.render()" class="text-rose-600 font-semibold">Delete</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      },
+
+      openServiceFormModal(id = null) {
+        const srv = id ? this.state.services.find((s) => s.id === id) : { name: '', category: 'Portraits', description: '', imageUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=900&q=80', price: 1500, durationMinutes: 90, depositPercent: 40 };
+        document.getElementById('modal-root').innerHTML = `
+          <div onclick="app.closeModal()" class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+            <div onclick="event.stopPropagation()" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl">
+              <h3 class="font-serif-editorial text-xl font-semibold mb-4">${id ? 'Edit Service' : 'New Photography Service'}</h3>
+              <form onsubmit="app.saveServiceForm(event, '${id || ''}')" class="space-y-3 text-xs">
+                <input name="name" required value="${this.esc(srv.name)}" placeholder="Service Name *" class="w-full px-3 py-2 rounded-xl border" />
+                <div class="grid grid-cols-2 gap-3">
+                  <input name="category" value="${this.esc(srv.category)}" placeholder="Category" class="px-3 py-2 rounded-xl border" />
+                  <input name="imageUrl" value="${this.esc(srv.imageUrl)}" placeholder="Image URL" class="px-3 py-2 rounded-xl border" />
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                  <input name="price" type="number" required value="${srv.price}" placeholder="Price" class="px-3 py-2 rounded-xl border" />
+                  <input name="durationMinutes" type="number" required value="${srv.durationMinutes}" placeholder="Minutes" class="px-3 py-2 rounded-xl border" />
+                  <input name="depositPercent" type="number" required value="${srv.depositPercent}" placeholder="Deposit %" class="px-3 py-2 rounded-xl border" />
+                </div>
+                <textarea name="description" rows="3" required placeholder="Description" class="w-full px-3 py-2 rounded-xl border">${this.esc(srv.description)}</textarea>
+                <div class="flex justify-end gap-2">
+                  <button type="button" onclick="app.closeModal()" class="px-4 py-2 border rounded-xl">Cancel</button>
+                  <button type="submit" class="px-5 py-2 bg-[#141414] text-white rounded-xl font-semibold">Save Service</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `;
+      },
+
+      saveServiceForm(e, id) {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const payload = {
+          id: id || 'srv_' + Date.now(),
+          name: fd.get('name'),
+          category: fd.get('category'),
+          imageUrl: fd.get('imageUrl'),
+          price: Number(fd.get('price')),
+          durationMinutes: Number(fd.get('durationMinutes')),
+          depositPercent: Number(fd.get('depositPercent')),
+          description: fd.get('description'),
+          active: true,
+          photographerIds: this.state.photographers.map((p) => p.id)
+        };
+        if (id) {
+          const idx = this.state.services.findIndex((s) => s.id === id);
+          if (idx >= 0) this.state.services[idx] = { ...this.state.services[idx], ...payload };
+        } else {
+          this.state.services.unshift(payload);
+        }
+        this.saveLocal();
+        this.closeModal();
+        this.toast('Service saved!');
+        this.render();
+      },
+
+      renderAdminStaff(appts) {
+        const canManageAccounts = ['Super Administrator','Administrator'].includes(this.staffUser?.role);
+        return `
+          <div class="space-y-6">
+            <div class="flex justify-between items-center">
+              <h1 class="font-serif-editorial text-2xl font-semibold">Photographers &amp; Staff</h1>
+              ${canManageAccounts ? '<button onclick="app.openStaffAccountModal()" class="px-4 py-2 rounded-xl bg-emerald-700 text-white text-xs font-semibold">+ Create Login Account</button>' : ''}
+            </div>
+            ${canManageAccounts ? `
+              <div class="bg-white rounded-2xl border border-stone-200 p-5 space-y-3">
+                <div class="flex items-center justify-between"><h2 class="font-semibold">Staff Login Accounts</h2><button onclick="app.loadStaffAccounts()" class="text-xs underline">Refresh accounts</button></div>
+                <div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead class="text-stone-500 border-b"><tr><th class="py-2 pr-3">Name</th><th class="py-2 pr-3">Email</th><th class="py-2 pr-3">Role</th><th class="py-2 pr-3">Status</th><th class="py-2">Action</th></tr></thead><tbody class="divide-y">${this.staffAccounts.map(u => `<tr><td class="py-3 pr-3 font-semibold">${this.esc(u.name)}</td><td class="py-3 pr-3">${this.esc(u.email)}</td><td class="py-3 pr-3">${this.esc(u.role)}</td><td class="py-3 pr-3">${u.active ? 'Active' : 'Disabled'}</td><td class="py-3"><button onclick="app.toggleStaffAccount('${u.id}', ${!u.active})" class="underline ${u.active ? 'text-rose-600' : 'text-emerald-700'}">${u.active ? 'Disable' : 'Enable'}</button></td></tr>`).join('')}</tbody></table></div>
+                <p class="text-[11px] text-stone-500">Create a separate account for every administrator and staff member. Do not share passwords.</p>
+              </div>` : ''}
+            <div class="flex justify-between items-center"><h2 class="font-serif-editorial text-xl font-semibold">Photographer Profiles</h2>${canManageAccounts ? '<button onclick="app.openStaffModal()" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold">+ Add Photographer Profile</button>' : ''}</div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              ${this.state.photographers.map((p, idx) => `
+                <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
+                  <img src="${this.esc(p.photoUrl)}" class="h-56 w-full object-cover" />
+                  <div class="p-5">
+                    <h3 class="font-serif-editorial text-lg font-semibold">${this.esc(p.name)}</h3>
+                    <p class="text-xs gold-text font-medium">${this.esc(p.title)} (${this.esc(p.role)})</p>
+                    <p class="text-xs text-stone-500 mt-2 line-clamp-2">${this.esc(p.bio)}</p>
+                    <div class="mt-4 pt-3 border-t flex justify-between text-xs">
+                      <span>${appts.filter((a) => a.photographerId === p.id && a.status !== 'Cancelled').length} Active Shoots</span>
+                      <button onclick="app.state.photographers.splice(${idx},1); app.saveLocal(); app.render()" class="text-rose-600 font-semibold">Remove</button>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      },
+
+      async loadStaffAccounts() {
+        try {
+          const result = await this.apiCall('listStaff', { token: this.staffToken });
+          if (!result.ok) throw new Error(result.error || 'Could not load staff accounts.');
+          this.staffAccounts = result.records || [];
+          this.render();
+        } catch (err) { this.toast(err.message, 'error'); }
+      },
+
+      openStaffAccountModal() {
+        if (!['Super Administrator','Administrator'].includes(this.staffUser?.role)) return;
+        document.getElementById('modal-root').innerHTML = `
+          <div onclick="app.closeModal()" class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
+            <div onclick="event.stopPropagation()" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl my-8">
+              <h3 class="font-serif-editorial text-xl font-semibold mb-2">Create Staff Login</h3>
+              <p class="text-xs text-stone-500 mb-4">The staff member will use this email and temporary password to sign in.</p>
+              <form onsubmit="app.createStaffAccount(event)" class="space-y-3 text-xs">
+                <input name="name" required maxlength="100" placeholder="Full name" class="w-full px-3 py-2.5 rounded-xl border" />
+                <input name="email" type="email" required placeholder="Work email" class="w-full px-3 py-2.5 rounded-xl border" />
+                <select name="role" class="w-full px-3 py-2.5 rounded-xl border"><option>Photographer</option><option>Staff</option><option>Administrator</option></select>
+                <select name="photographerId" class="w-full px-3 py-2.5 rounded-xl border"><option value="">Not linked to a photographer profile</option>${this.state.photographers.map(p => `<option value="${this.esc(p.id)}">${this.esc(p.name)}</option>`).join('')}</select>
+                <input name="password" type="password" required minlength="14" autocomplete="new-password" placeholder="Temporary password (minimum 14 characters)" class="w-full px-3 py-2.5 rounded-xl border" />
+                <div class="flex justify-end gap-2 pt-2"><button type="button" onclick="app.closeModal()" class="px-4 py-2 border rounded-xl">Cancel</button><button type="submit" class="px-5 py-2 bg-emerald-700 text-white rounded-xl font-semibold">Create Account</button></div>
+              </form>
+            </div>
+          </div>`;
+      },
+
+      async createStaffAccount(event) {
+        event.preventDefault();
+        const fd = new FormData(event.target);
+        const staff = { name:String(fd.get('name')||'').trim(), email:String(fd.get('email')||'').trim(), role:String(fd.get('role')||'Staff'), photographerId:String(fd.get('photographerId')||''), password:String(fd.get('password')||'') };
+        try {
+          const result = await this.apiCall('createStaff', { token:this.staffToken, staff });
+          if (!result.ok) throw new Error(result.error || 'Could not create account.');
+          this.staffAccounts.push(result.staff);
+          this.closeModal(); this.render();
+          this.toast('Staff login account created. Share the temporary password securely.');
+        } catch (err) { this.toast(err.message, 'error'); }
+      },
+
+      async toggleStaffAccount(id, active) {
+        try {
+          const result = await this.apiCall('setStaffActive', { token:this.staffToken, id, active });
+          if (!result.ok) throw new Error(result.error || 'Could not update account.');
+          await this.loadStaffAccounts();
+          this.toast(active ? 'Staff account enabled.' : 'Staff account disabled.');
+        } catch (err) { this.toast(err.message, 'error'); }
+      },
+
+      openStaffModal() {
+        document.getElementById('modal-root').innerHTML = `
+          <div onclick="app.closeModal()" class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+            <div onclick="event.stopPropagation()" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+              <h3 class="font-serif-editorial text-xl font-semibold mb-4">Add Photographer</h3>
+              <form onsubmit="app.saveStaffForm(event)" class="space-y-3 text-xs">
+                <input name="name" required placeholder="Full Name *" class="w-full px-3 py-2 rounded-xl border" />
+                <input name="title" required placeholder="Title (e.g. Portrait Specialist) *" class="w-full px-3 py-2 rounded-xl border" />
+                <input name="email" type="email" required placeholder="Email *" class="w-full px-3 py-2 rounded-xl border" />
+                <input name="phone" required placeholder="Phone *" class="w-full px-3 py-2 rounded-xl border" />
+                <input name="photoUrl" value="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80" placeholder="Photo URL" class="w-full px-3 py-2 rounded-xl border" />
+                <textarea name="bio" rows="2" placeholder="Short Bio" class="w-full px-3 py-2 rounded-xl border"></textarea>
+                <div class="flex justify-end gap-2">
+                  <button type="button" onclick="app.closeModal()" class="px-4 py-2 border rounded-xl">Cancel</button>
+                  <button type="submit" class="px-5 py-2 bg-[#141414] text-white rounded-xl font-semibold">Add Staff</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `;
+      },
+
+      saveStaffForm(e) {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        this.state.photographers.push({
+          id: 'staff_' + Date.now(),
+          name: fd.get('name'),
+          title: fd.get('title'),
+          role: 'Photographer',
+          email: fd.get('email'),
+          phone: fd.get('phone'),
+          photoUrl: fd.get('photoUrl'),
+          bio: fd.get('bio'),
+          specialties: ['Portrait Photography'],
+          workingHours: JSON.parse(JSON.stringify(DEFAULT_DATA.photographers[0].workingHours))
+        });
+        this.saveLocal();
+        this.closeModal();
+        this.toast('Photographer added!');
+        this.render();
+      },
+
+      renderAdminCustomers(cur, appts) {
+        return `
+          <div class="space-y-6">
+            <h1 class="font-serif-editorial text-2xl font-semibold">Customer Directory (${this.state.customers.length})</h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              ${this.state.customers.map((c) => {
+                const cAppts = appts.filter((a) => a.clientEmail.toLowerCase() === c.email.toLowerCase());
+                const spend = cAppts.reduce((s, a) => s + Number(a.amountPaid || 0), 0);
+                return `
+                  <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm text-xs space-y-2">
+                    <div class="flex justify-between">
+                      <div><strong class="text-base font-serif-editorial">${this.esc(c.name)}</strong><p class="text-stone-500">${this.esc(c.email)} • ${this.esc(c.phone)}</p></div>
+                      <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 font-bold">Paid: ${cur}${spend.toLocaleString()}</span>
+                    </div>
+                    <p>Bookings: <strong>${cAppts.length}</strong> • Preferred: <strong>${this.esc(c.preferredService || 'N/A')}</strong></p>
+                  </div>
+                `;
+              }).join('')}
+              ${this.state.customers.length === 0 ? '<p class="text-xs text-stone-400">Customer profiles populate automatically upon booking.</p>' : ''}
+            </div>
+          </div>
+        `;
+      },
+
+      renderAdminReviews() {
+        return `
+          <div class="space-y-6">
+            <h1 class="font-serif-editorial text-2xl font-semibold">Client Reviews Moderation</h1>
+            <div class="space-y-4">
+              ${this.state.reviews.map((r, idx) => `
+                <div class="bg-white p-6 rounded-2xl border border-stone-200 flex flex-col sm:flex-row justify-between gap-4">
+                  <div>
+                    <p class="font-semibold text-sm">${this.esc(r.clientName)} <span class="text-xs text-stone-400">• ${this.esc(r.serviceName)} • [${r.status}]</span></p>
+                    <p class="text-xs text-stone-600 italic mt-1">"${this.esc(r.comment)}"</p>
+                  </div>
+                  <div class="flex gap-2 shrink-0">
+                    ${r.status !== 'approved' ? `<button onclick="app.state.reviews[${idx}].status='approved'; app.saveLocal(); app.render()" class="px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold">Approve</button>` : ''}
+                    <button onclick="app.state.reviews.splice(${idx},1); app.saveLocal(); app.render()" class="px-3.5 py-2 rounded-xl border border-rose-200 text-rose-600 text-xs font-semibold">Delete</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      },
+
+      renderAdminReports(cur, appts) {
+        return `
+          <div class="space-y-6">
+            <div class="flex justify-between items-center">
+              <h1 class="font-serif-editorial text-2xl font-semibold">Reports &amp; CSV Export</h1>
+              <button onclick="app.exportBookingsCSV()" class="px-4 py-2 rounded-xl bg-[#141414] text-white text-xs font-semibold">Download CSV Report</button>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-stone-200 text-xs space-y-3">
+              <h3 class="font-serif-editorial text-lg font-semibold">Photographer Performance</h3>
+              ${this.state.photographers.map((p) => {
+                const pAppts = appts.filter((a) => a.photographerId === p.id && a.status !== 'Cancelled');
+                const rev = pAppts.reduce((s, a) => s + Number(a.amountPaid || 0), 0);
+                return `<div class="flex justify-between p-3 rounded-xl bg-stone-50"><strong>${this.esc(p.name)} (${pAppts.length} shoots)</strong><span class="font-bold text-emerald-700">${cur}${rev.toLocaleString()}</span></div>`;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      },
+
+      exportBookingsCSV() {
+        const headers = ['Ref,Client,Email,Service,Photographer,Date,Time,Status,Total,Paid,Balance'];
+        const rows = this.state.appointments.map((a) => `"${a.bookingRef}","${a.clientName}","${a.clientEmail}","${a.serviceName}","${a.photographerName}","${a.date}","${a.startTime}","${a.status}",${a.totalAmount},${a.amountPaid || 0},${a.balanceRemaining || 0}`);
+        const blob = new Blob([headers.concat(rows).join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `agio-photography-bookings-${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+      },
+
+      renderAdminSettings() {
+        const s = this.state.settings;
+        return `
+          <form onsubmit="app.saveSettingsForm(event)" class="space-y-6 max-w-4xl">
+            <div class="flex justify-between items-center">
+              <h1 class="font-serif-editorial text-2xl font-semibold">Branding, Gateways &amp; Google Sheets</h1>
+              <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#141414] text-white text-xs font-semibold uppercase">Save Settings</button>
+            </div>
+
+            <div class="bg-emerald-950 text-white p-6 rounded-2xl space-y-3 text-xs">
+              <div class="flex justify-between items-center">
+                <span class="font-bold uppercase tracking-wider text-emerald-300">Google Sheets Two-Way Database Sync</span>
+                <button type="button" onclick="app.openGoogleSheetModal()" class="underline text-emerald-200">View Secure Backend Code.gs</button>
+              </div>
+              <input name="googleSheetWebAppUrl" value="${this.esc(s.googleSheetWebAppUrl || '')}" placeholder="https://script.google.com/macros/s/YOUR_DEPLOY_ID/exec" class="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-emerald-700 text-white font-mono" />
+              <div class="flex gap-2">
+                <button type="button" onclick="app.refreshStaffBookings()" class="px-4 py-2 rounded-xl bg-emerald-600 font-semibold">Refresh Bookings</button>
+                <button type="button" onclick="app.copyAppsScript()" class="px-4 py-2 rounded-xl bg-white/10 font-semibold">Copy Backend Code</button>
+              </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-stone-200 space-y-4 text-xs">
+              <h3 class="font-serif-editorial text-lg font-semibold">Studio Brand Identity &amp; Policies</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div><label class="block font-semibold mb-1">Studio Name</label><input name="studioName" value="${this.esc(s.studioName)}" class="w-full px-3 py-2 rounded-xl border" /></div>
+                <div><label class="block font-semibold mb-1">Accent Color</label><input name="accentColor" type="color" value="${this.esc(s.accentColor)}" class="w-full h-9 rounded-xl border" /></div>
+                <div><label class="block font-semibold mb-1">Phone / WhatsApp</label><input name="phone" value="${this.esc(s.phone)}" class="w-full px-3 py-2 rounded-xl border" /></div>
+              </div>
+              <div><label class="block font-semibold mb-1">Booking Policy</label><textarea name="bookingPolicy" rows="2" class="w-full px-3 py-2 rounded-xl border">${this.esc(s.bookingPolicy)}</textarea></div>
+              <div><label class="block font-semibold mb-1">Cancellation Policy</label><textarea name="cancellationPolicy" rows="2" class="w-full px-3 py-2 rounded-xl border">${this.esc(s.cancellationPolicy)}</textarea></div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-stone-200 space-y-4 text-xs">
+              <h3 class="font-serif-editorial text-lg font-semibold">Payment Gateway Public Keys</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div><label class="block font-semibold mb-1">Paystack Public Key</label><input name="paystackPublicKey" value="${this.esc(s.gateways.paystackPublicKey || '')}" class="w-full px-3 py-2 rounded-xl border font-mono" /></div>
+                <div><label class="block font-semibold mb-1">Flutterwave Public Key</label><input name="flutterwavePublicKey" value="${this.esc(s.gateways.flutterwavePublicKey || '')}" class="w-full px-3 py-2 rounded-xl border font-mono" /></div>
+                <div><label class="block font-semibold mb-1">Stripe Publishable Key</label><input name="stripePublishableKey" value="${this.esc(s.gateways.stripePublishableKey || '')}" class="w-full px-3 py-2 rounded-xl border font-mono" /></div>
+                <div><label class="block font-semibold mb-1">PayPal Client ID</label><input name="paypalClientId" value="${this.esc(s.gateways.paypalClientId || '')}" class="w-full px-3 py-2 rounded-xl border font-mono" /></div>
+              </div>
+            </div>
+          </form>
+        `;
+      },
+
+      saveSettingsForm(e) {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const s = this.state.settings;
+        s.studioName = fd.get('studioName');
+        s.accentColor = fd.get('accentColor');
+        s.phone = fd.get('phone');
+        s.bookingPolicy = fd.get('bookingPolicy');
+        s.cancellationPolicy = fd.get('cancellationPolicy');
+        s.googleSheetWebAppUrl = fd.get('googleSheetWebAppUrl').trim();
+        s.gateways.paystackPublicKey = fd.get('paystackPublicKey').trim();
+        s.gateways.flutterwavePublicKey = fd.get('flutterwavePublicKey').trim();
+        s.gateways.stripePublishableKey = fd.get('stripePublishableKey').trim();
+        s.gateways.paypalClientId = fd.get('paypalClientId').trim();
+        this.saveLocal(true);
+        this.applyBrandTheme();
+        this.updateGSheetStatusBadge();
+        this.toast('All settings saved!');
+        this.render();
+      }
+    };
+
+    window.addEventListener('DOMContentLoaded', () => app.init());
+  </script>
+</body>
+</html>
