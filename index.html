@@ -490,6 +490,7 @@
         if (saved) {
           try {
             this.state = JSON.parse(saved);
+            this.state.settings.googleSheetWebAppUrl = 'https://script.google.com/macros/s/AKfycbwo0gXZm4EQw4a5vvI9uXwAbpb2JX9Rvmp-3DbKCsH2FFb-qDs-CandNeErf-p3RAX2OQ/exec';
           } catch (e) {
             this.state = JSON.parse(JSON.stringify(DEFAULT_DATA));
           }
