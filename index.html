@@ -126,7 +126,9 @@
     // =========================================================================
     const DEFAULT_DATA = {
       settings: {
-        studioName: 'Agio Photography',
+       supabaseUrl: 'https://tltjytmdymwwerzmjohf.supabase.co',
+        supabaseAnonKey: 'sb_publishable_udEMpYufW_SsVVDt4oa7-g_k_N1Lma07',
+         studioName: 'Agio Photography',
         tagline: 'Timeless Editorial & Fine Art Photography',
         accentColor: '#C5A059',
         email: 'bookings@agiophotography.com',
@@ -144,8 +146,7 @@
           'Are there specific must-have poses, products, or family groupings?'
         ],
         googleSheetWebAppUrl: 'https://script.google.com/macros/s/AKfycbyrmSSkhd78wMQvwkynEdBMYm6jBAryN_ZnAhHp_CYDaroEX5W99fmpMIOlKUAy_SSC/exec',
-        supabaseUrl: 'https://tltjytmdymwwerzmjohf.supabase.co',
-        supabaseAnonKey: 'sb_publishable_udEMpYufW_SsVVDt4oa7-g_k_N1Lma07',
+        
         lastSyncedAt: '',
         gateways: {
           paystackPublicKey: '',
@@ -448,6 +449,32 @@
 
     const STORAGE_KEY = 'agio_photography_db_v1';
 
+        // Supabase connection helper
+    async function agioSupabaseRequest(path, options = {}) {
+      const config = DEFAULT_DATA.settings;
+      const response = await fetch(
+        `${config.supabaseUrl}/rest/v1/${path}`,
+        {
+          ...options,
+          headers: {
+            apikey: config.supabaseAnonKey,
+            Authorization: `Bearer ${config.supabaseAnonKey}`,
+            'Content-Type': 'application/json',
+            Prefer: 'return=representation',
+            ...options.headers
+          }
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Supabase connection failed.');
+      }
+
+      return result;
+    }
+    
     const app = {
       state: null,
       view: 'public',        // 'public' | 'booking' | 'portal' | 'admin'
