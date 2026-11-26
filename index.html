@@ -529,18 +529,20 @@
         this.applyBrandTheme();
         this.updateGSheetStatusBadge();
         this.render();
-        if (this.state.settings.googleSheetWebAppUrl) {
-          try {
-            this.ensureBridge();
-            this.apiCall('publicCatalog').then(result => {
-              if (result.ok && result.data) {
-                if (result.data.Services?.length) this.state.services=result.data.Services;
-                if (result.data.Photographers?.length) this.state.photographers=result.data.Photographers;
-                this.saveLocal(false); this.render();
-              }
-            }).catch(() => {});
-          } catch (e) {}
-        }
+            agioSupabaseRequest('agio_records?select=collection,data&collection=in.(Services,Photographers)')
+          .then(rows => {
+            if (Array.isArray(rows)) {
+              const services = rows.filter(row => row.collection === 'Services').map(row => row.data);
+              const photographers = rows.filter(row => row.collection === 'Photographers').map(row => row.data);
+
+              if (services.length) this.state.services = services;
+              if (photographers.length) this.state.photographers = photographers;
+
+              this.saveLocal(false);
+              this.render();
+            }
+          })
+          .catch(error => console.warn('Supabase catalogue connection:', error));
       },
 
       ensureBridge() {
