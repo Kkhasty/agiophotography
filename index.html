@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agio Photography — Kwamo, off Ejisu Road | Booking &amp; Google Sheets System</title>
+  <title>Agio Photography — Kwamo, off Ejisu Road | Booking &amp; Supabase System</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -120,6 +120,8 @@
   <!-- Modal Container -->
   <div id="modal-root"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-browser-adapter.js"></script>
   <script>
     // =========================================================================
     // 1. DEFAULT SEED DATA (12 FULL PHOTOGRAPHY SERVICES, STAFF, PORTFOLIO)
@@ -145,7 +147,6 @@
           'What mood, aesthetic, or color palette do you envision for this shoot?',
           'Are there specific must-have poses, products, or family groupings?'
         ],
-        googleSheetWebAppUrl: 'https://script.google.com/macros/s/AKfycbyrmSSkhd78wMQvwkynEdBMYm6jBAryN_ZnAhHp_CYDaroEX5W99fmpMIOlKUAy_SSC/exec',
         
         lastSyncedAt: '',
         gateways: {
@@ -425,27 +426,12 @@
     // =========================================================================
     // 2. GOOGLE APPS SCRIPT TEMPLATE (FOR TWO-WAY GOOGLE SHEETS LINKING)
     // =========================================================================
-    const GOOGLE_APPS_SCRIPT_CODE = "/**\n * AGIO PHOTOGRAPHY - GOOGLE SHEETS BACKEND + AUTHENTICATED HTML SERVICE BRIDGE\n * Deployment: Execute as the owner. Anyone may load the bridge URL, but every\n * private API action requires a server-issued session token and role check.\n * Configure ALLOWED_ORIGINS and the one-time initial admin credentials below.\n */\nconst AGIO = {\n  SHEETS: ['Bookings','Customers','Staff','Services','Photographers','Payments','Inquiries','Reviews','BlockedSlots','Settings'],\n  ALLOWED_ORIGINS: ['https://YOUR-GITHUB-USERNAME.github.io'], // Add your exact website origin/custom domain.\n  INITIAL_ADMIN_EMAIL: 'CHANGE-THIS-EMAIL@example.com',\n  INITIAL_ADMIN_PASSWORD: 'CHANGE-THIS-TO-A-LONG-ONE-TIME-PASSWORD',\n  SESSION_SECONDS: 21600,\n  HASH_ROUNDS: 4000\n};\n\nfunction doGet(e) {\n  if (e && e.parameter && e.parameter.bridge === '1') {\n    return HtmlService.createHtmlOutput(bridgeHtml_())\n      .setTitle('Agio Secure API Bridge')\n      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);\n  }\n  return json_({ok:true, service:'Agio Photography API', message:'Use the website login and booking interface.'});\n}\n\nfunction doPost() {\n  return json_({ok:false,error:'Direct requests are not supported. Use the secure website bridge.'});\n}\n\nfunction initializeAgioSheets() {\n  const ss = SpreadsheetApp.getActiveSpreadsheet();\n  AGIO.SHEETS.forEach(function(name) {\n    let sh = ss.getSheetByName(name);\n    if (!sh) sh = ss.insertSheet(name);\n    if (sh.getLastRow() === 0) sh.appendRow(['ID','JSON_RECORD','UPDATED_AT']);\n    sh.setFrozenRows(1);\n  });\n  const staff = ss.getSheetByName('Staff');\n  if (staff.getLastRow() < 2) {\n    if (AGIO.INITIAL_ADMIN_EMAIL.indexOf('CHANGE-THIS') === 0 || AGIO.INITIAL_ADMIN_PASSWORD.indexOf('CHANGE-THIS') === 0 || AGIO.INITIAL_ADMIN_PASSWORD.length < 14) {\n      throw new Error('Edit AGIO.INITIAL_ADMIN_EMAIL and AGIO.INITIAL_ADMIN_PASSWORD first. Use a unique password of at least 14 characters.');\n    }\n    const salt = Utilities.getUuid() + Utilities.getUuid();\n    const admin = {id:Utilities.getUuid(),name:'Studio Administrator',email:AGIO.INITIAL_ADMIN_EMAIL.toLowerCase(),role:'Super Administrator',active:true,salt:salt,passwordHash:hashPassword_(AGIO.INITIAL_ADMIN_PASSWORD,salt),photographerId:'',createdAt:new Date().toISOString()};\n    staff.appendRow([admin.id,JSON.stringify(admin),new Date().toISOString()]);\n  }\n  PropertiesService.getScriptProperties().setProperty('AGIO_SETUP_COMPLETE','true');\n  return 'Agio Sheets initialized. Initial administrator account created if Staff was empty.';\n}\n\nfunction apiDispatch(action, payload) {\n  payload = payload || {};\n  try {\n    switch (String(action || '')) {\n      case 'login': return login_(payload);\n      case 'logout': return logout_(payload);\n      case 'publicCatalog': return publicCatalog_();\n      case 'bootstrapData': return bootstrapData_(payload.token, payload.data || {});\n      case 'createBooking': return createBooking_(payload.record || {});\n      case 'listBookings': return listBookings_(payload.token);\n      case 'updateBooking': return updateBooking_(payload.token, payload.id, payload.patch || {});\n      case 'listStaff': return listStaff_(payload.token);\n      case 'createStaff': return createStaff_(payload.token, payload.staff || {});\n      case 'setStaffActive': return setStaffActive_(payload.token, payload.id, payload.active === true);\n      case 'saveCollection': return saveCollection_(payload.token, payload.name, payload.records || []);\n      case 'getCollection': return getCollection_(payload.token, payload.name);\n      default: return {ok:false,error:'Unknown API action.'};\n    }\n  } catch (err) {\n    return {ok:false,error:String(err && err.message ? err.message : err)};\n  }\n}\n\nfunction bootstrapData_(token, data) {\n  const user=requireSession_(token); requireAdmin_(user);\n  const allowed={Services:data.services||[],Photographers:data.photographers||[],Reviews:data.reviews||[],BlockedSlots:data.blockedSlots||[],Inquiries:data.inquiries||[],Settings:data.settings?[Object.assign({id:'studio_settings'},data.settings)]:[]};\n  if(readRecords_('Bookings').length===0 && Array.isArray(data.bookings)) data.bookings.forEach(function(r){if(r&&r.id)upsertRecord_('Bookings',String(r.id),r);});\n  if(readRecords_('Customers').length===0 && Array.isArray(data.customers)) data.customers.forEach(function(r){if(r&&r.id)upsertRecord_('Customers',String(r.id),r);});\n  Object.keys(allowed).forEach(function(name){\n    if(readRecords_(name).length===0 && Array.isArray(allowed[name]) && allowed[name].length){\n      allowed[name].forEach(function(record){const id=String(record.id||Utilities.getUuid());record.id=id;upsertRecord_(name,id,record);});\n    }\n  });\n  return {ok:true,collections:{\n    Services:readRecords_('Services').map(function(x){return x.record;}),\n    Photographers:readRecords_('Photographers').map(function(x){return x.record;}),\n    Reviews:readRecords_('Reviews').map(function(x){return x.record;}),\n    BlockedSlots:readRecords_('BlockedSlots').map(function(x){return x.record;}),\n    Inquiries:readRecords_('Inquiries').map(function(x){return x.record;}),\n    Customers:readRecords_('Customers').map(function(x){return x.record;}),\n    Settings:readRecords_('Settings').map(function(x){return x.record;}),\n    Bookings:readRecords_('Bookings').map(function(x){return x.record;})\n  }};\n}\n\nfunction login_(p) {\n  const email = String(p.email || '').trim().toLowerCase();\n  const password = String(p.password || '');\n  if (!email || !password || password.length > 256) return {ok:false,error:'Enter your email and password.'};\n  const cache=CacheService.getScriptCache();\n  const attemptKey='agio_login_fail_' + sha256_(email);\n  const attempts=Number(cache.get(attemptKey)||0);\n  if(attempts>=8) return {ok:false,error:'Too many failed attempts. Wait 15 minutes before trying again.'};\n  const user = findStaffByEmail_(email);\n  if (!user || user.active !== true || hashPassword_(password,user.salt) !== user.passwordHash) {\n    cache.put(attemptKey,String(attempts+1),900);\n    return {ok:false,error:'Invalid login details or inactive account.'};\n  }\n  cache.remove(attemptKey);\n  const token = Utilities.getUuid() + Utilities.getUuid();\n  const session = {userId:user.id,email:user.email,name:user.name,role:user.role,photographerId:user.photographerId || '',issuedAt:Date.now()};\n  CacheService.getScriptCache().put('agio_session_' + sha256_(token),JSON.stringify(session),AGIO.SESSION_SECONDS);\n  return {ok:true,token:token,user:{id:user.id,name:user.name,email:user.email,role:user.role,photographerId:user.photographerId || ''},expiresIn:AGIO.SESSION_SECONDS};\n}\n\nfunction logout_(p) {\n  if (p.token) CacheService.getScriptCache().remove('agio_session_' + sha256_(String(p.token)));\n  return {ok:true};\n}\n\nfunction createBooking_(record) {\n  const required = ['bookingRef','clientName','clientEmail','clientPhone','date','startTime','endTime','serviceId','photographerId'];\n  required.forEach(function(k){ if (!record[k]) throw new Error('Booking is missing ' + k + '.'); });\n  if (!/^\\S+@\\S+\\.\\S+$/.test(String(record.clientEmail))) throw new Error('Enter a valid email address.');\n  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(String(record.date))) throw new Error('Invalid booking date.');\n  if (!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(String(record.startTime)) || !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(String(record.endTime)) || String(record.endTime)<=String(record.startTime)) throw new Error('Invalid booking time.');\n  if (String(record.date) < Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd')) throw new Error('Bookings cannot be made for a past date.');\n  const services=readRecords_('Services').map(function(x){return x.record;});\n  const service=services.find(function(x){return x.id===String(record.serviceId);});\n  if (services.length && (!service || service.active===false)) throw new Error('The selected photography package is unavailable.');\n  if (service) {\n    const selectedIds=(record.addons||[]).map(function(a){return a.id;});\n    const addonTotal=(service.addons||[]).filter(function(a){return selectedIds.indexOf(a.id)>=0;}).reduce(function(sum,a){return sum+Number(a.price||0);},0);\n    const trustedTotal=Number(service.price||0)+addonTotal;\n    record.totalAmount=trustedTotal;\n    record.durationMinutes=Number(service.durationMinutes||service.duration||record.durationMinutes||60);\n    record.depositAmount=Math.round(trustedTotal*Number(service.depositPercent||40)/100);\n    record.amountPaid=0;\n    record.balanceRemaining=trustedTotal;\n  }\n  const photographers=readRecords_('Photographers').map(function(x){return x.record;});\n  const photographer=photographers.find(function(x){return x.id===String(record.photographerId);});\n  if (photographers.length && (!photographer || photographer.active===false)) throw new Error('The selected photographer is unavailable.');\n  if (photographer && photographer.workingHours) {\n    const day=new Date(String(record.date)+'T12:00:00').getDay();\n    const hours=photographer.workingHours[day];\n    const toMin=function(t){const parts=String(t||'').split(':');return Number(parts[0])*60+Number(parts[1]);};\n    const start=toMin(record.startTime), end=toMin(record.endTime);\n    if (!hours || !hours.active || start<toMin(hours.start) || end>toMin(hours.end)) throw new Error('The selected time is outside this photographer\u2019s working hours.');\n    if (Number(record.durationMinutes||60)<360 && hours.breakStart && hours.breakEnd && start<toMin(hours.breakEnd) && toMin(hours.breakStart)<end) throw new Error('The selected time overlaps the photographer\u2019s break.');\n    record.photographerName=photographer.name;\n  }\n  const throttleKey='agio_booking_' + sha256_(String(record.clientEmail).toLowerCase());\n  const cache=CacheService.getScriptCache();\n  const recent=Number(cache.get(throttleKey)||0);\n  if(recent>=5) throw new Error('Too many booking attempts. Please try again later.');\n  cache.put(throttleKey,String(recent+1),600);\n  if (String(record.clientName).length > 120 || String(record.specialRequirements || '').length > 3000) throw new Error('Some booking information is too long.');\n  const lock = LockService.getScriptLock();\n  lock.waitLock(20000);\n  try {\n    const existing = readRecords_('Bookings');\n    const conflict = existing.some(function(x){\n      const a=x.record;\n      return a.date === record.date && a.photographerId === record.photographerId && a.status !== 'Cancelled' && overlaps_(a.startTime,a.endTime,record.startTime,record.endTime);\n    });\n    if (conflict) throw new Error('That appointment time has just been booked. Please choose another time.');\n    record.id = record.id || Utilities.getUuid();\n    record.status = 'Pending';\n    record.createdAt = record.createdAt || new Date().toISOString();\n    record.updatedAt = new Date().toISOString();\n    upsertRecord_('Bookings',record.id,record);\n    upsertCustomer_(record);\n    return {ok:true,record:record};\n  } finally { lock.releaseLock(); }\n}\n\nfunction listBookings_(token) {\n  const user = requireSession_(token);\n  const rows = readRecords_('Bookings').map(function(x){return x.record;});\n  let filtered = rows;\n  if (user.role === 'Photographer') filtered = rows.filter(function(r){return r.photographerId === user.photographerId;});\n  if (user.role === 'Staff') filtered = rows.filter(function(r){return r.photographerId === user.photographerId || r.assignedStaffId === user.userId;});\n  return {ok:true,records:filtered,user:user};\n}\n\nfunction updateBooking_(token,id,patch) {\n  const user = requireSession_(token);\n  const row = findRecord_('Bookings',id);\n  if (!row) throw new Error('Booking not found.');\n  if (user.role === 'Photographer' && row.photographerId !== user.photographerId) throw new Error('You are not allowed to update this booking.');\n  if (user.role === 'Staff' && row.assignedStaffId !== user.userId) throw new Error('You are not allowed to update this booking.');\n  const allowed = user.role === 'Super Administrator' || user.role === 'Administrator'\n    ? ['status','photographerId','photographerName','specialRequirements','internalNotes','assignedStaffId','paymentStatus','amountPaid','balanceRemaining']\n    : ['status','internalNotes'];\n  Object.keys(patch).forEach(function(k){if (allowed.indexOf(k) >= 0) row[k]=patch[k];});\n  row.updatedAt = new Date().toISOString();\n  upsertRecord_('Bookings',id,row);\n  return {ok:true,record:row};\n}\n\nfunction listStaff_(token) {\n  const user = requireSession_(token);\n  requireAdmin_(user);\n  const records = readRecords_('Staff').map(function(x){\n    const u=x.record; return {id:u.id,name:u.name,email:u.email,role:u.role,active:u.active,photographerId:u.photographerId || ''};\n  });\n  return {ok:true,records:records};\n}\n\nfunction createStaff_(token,staff) {\n  const user=requireSession_(token); requireAdmin_(user);\n  const email=String(staff.email||'').trim().toLowerCase();\n  const password=String(staff.password||'');\n  const name=String(staff.name||'').trim();\n  const role=String(staff.role||'');\n  if (!name || !/^\\S+@\\S+\\.\\S+$/.test(email)) throw new Error('Enter a valid staff name and email.');\n  if (password.length < 14) throw new Error('Temporary password must contain at least 14 characters.');\n  if (['Administrator','Photographer','Staff'].indexOf(role)<0) throw new Error('Invalid staff role.');\n  if (role==='Administrator' && user.role!=='Super Administrator') throw new Error('Only the Super Administrator can create another Administrator.');\n  if (findStaffByEmail_(email)) throw new Error('An account with that email already exists.');\n  const salt=Utilities.getUuid()+Utilities.getUuid();\n  const record={id:Utilities.getUuid(),name:name,email:email,role:role,active:true,salt:salt,passwordHash:hashPassword_(password,salt),photographerId:String(staff.photographerId||''),createdAt:new Date().toISOString()};\n  upsertRecord_('Staff',record.id,record);\n  return {ok:true,staff:{id:record.id,name:record.name,email:record.email,role:record.role,active:true,photographerId:record.photographerId}};\n}\n\nfunction setStaffActive_(token,id,active) {\n  const user=requireSession_(token); requireAdmin_(user);\n  const row=findRecord_('Staff',id); if(!row) throw new Error('Staff account not found.');\n  if(row.role==='Super Administrator' && !active) throw new Error('Use a separate administrator account before disabling the primary account.');\n  row.active=active; row.updatedAt=new Date().toISOString(); upsertRecord_('Staff',id,row);\n  return {ok:true};\n}\n\nfunction saveCollection_(token,name,records) {\n  const user=requireSession_(token); requireAdmin_(user);\n  const allowed=['Services','Photographers','Payments','Inquiries','Reviews','BlockedSlots','Settings'];\n  if(allowed.indexOf(name)<0) throw new Error('Collection is not writable.');\n  if(!Array.isArray(records) || records.length>2000) throw new Error('Invalid collection.');\n  records.forEach(function(r){const id=String(r.id||Utilities.getUuid()); r.id=id; upsertRecord_(name,id,r);});\n  return {ok:true,count:records.length};\n}\n\nfunction getCollection_(token,name) {\n  const user=requireSession_(token);\n  if(['Super Administrator','Administrator'].indexOf(user.role)<0) throw new Error('Not authorized.');\n  const allowed=['Customers','Services','Photographers','Payments','Inquiries','Reviews','BlockedSlots','Settings'];\n  if(allowed.indexOf(name)<0) throw new Error('Collection is not available.');\n  return {ok:true,records:readRecords_(name).map(function(x){return x.record;})};\n}\n\nfunction publicCatalog_() {\n  const services=readRecords_('Services').map(function(x){const r=x.record; return {id:r.id,name:r.name,title:r.title,description:r.description,price:r.price,duration:r.duration,durationMinutes:r.durationMinutes,imageUrl:r.imageUrl,category:r.category,features:r.features,addons:r.addons,active:r.active};});\n  const photographers=readRecords_('Photographers').map(function(x){const r=x.record; return {id:r.id,name:r.name,title:r.title,bio:r.bio,photoUrl:r.photoUrl,specialties:r.specialties,active:r.active,workingHours:r.workingHours};});\n  return {ok:true,data:{Services:services,Photographers:photographers}};\n}\n\nfunction requireSession_(token) {\n  if (!token) throw new Error('Please sign in again.');\n  const raw=CacheService.getScriptCache().get('agio_session_' + sha256_(String(token)));\n  if (!raw) throw new Error('Your session has expired. Please sign in again.');\n  return JSON.parse(raw);\n}\nfunction requireAdmin_(u){if(['Super Administrator','Administrator'].indexOf(u.role)<0) throw new Error('Administrator permission required.');}\nfunction findStaffByEmail_(email){return readRecords_('Staff').map(function(x){return x.record;}).find(function(u){return String(u.email||'').toLowerCase()===email;})||null;}\nfunction upsertCustomer_(b){\n  const email=String(b.clientEmail).toLowerCase(); const found=readRecords_('Customers').find(function(x){return String(x.record.email||'').toLowerCase()===email;});\n  const c=found?found.record:{id:Utilities.getUuid(),name:b.clientName,email:email,phone:b.clientPhone,totalBookings:0,createdAt:new Date().toISOString()};\n  c.name=b.clientName; c.phone=b.clientPhone; c.lastBookingDate=b.date; c.totalBookings=Number(c.totalBookings||0)+1; c.preferredService=b.serviceName||'';\n  upsertRecord_('Customers',c.id,c);\n}\nfunction sheet_(name){const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name); if(!sh) throw new Error('Missing sheet '+name+'. Run initializeAgioSheets().'); return sh;}\nfunction readRecords_(name){const sh=sheet_(name); const n=sh.getLastRow(); if(n<2)return []; return sh.getRange(2,1,n-1,3).getValues().filter(function(r){return r[0]&&r[1];}).map(function(r){try{return {id:String(r[0]),record:JSON.parse(r[1])};}catch(e){return null;}}).filter(Boolean);}\nfunction findRecord_(name,id){const x=readRecords_(name).find(function(v){return v.id===String(id);}); return x?x.record:null;}\nfunction upsertRecord_(name,id,record){const sh=sheet_(name); const n=sh.getLastRow(); if(n>=2){const ids=sh.getRange(2,1,n-1,1).getValues().flat(); const i=ids.findIndex(function(v){return String(v)===String(id);}); if(i>=0){sh.getRange(i+2,1,1,3).setValues([[String(id),JSON.stringify(record),new Date().toISOString()]]);return;}} sh.appendRow([String(id),JSON.stringify(record),new Date().toISOString()]);}\nfunction overlaps_(s1,e1,s2,e2){return String(s1)<String(e2)&&String(s2)<String(e1);}\nfunction hashPassword_(password,salt){let value=salt+':'+password; for(let i=0;i<AGIO.HASH_ROUNDS;i++) value=sha256_(value); return value;}\nfunction sha256_(value){const bytes=Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,String(value),Utilities.Charset.UTF_8); return Utilities.base64EncodeWebSafe(bytes);}\nfunction json_(obj){return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);}\nfunction bridgeHtml_(){\n  const allowed=JSON.stringify(AGIO.ALLOWED_ORIGINS);\n  return '<!doctype html><html><head><base target=\"_top\"></head><body><script>'+\n    'const ALLOWED='+allowed+';let PARENT_ORIGIN=\"\";'+\n    'window.addEventListener(\"message\",function(e){if(ALLOWED.indexOf(e.origin)<0)return;PARENT_ORIGIN=e.origin;const m=e.data||{};if(m.type!==\"AGIO_API\"||!m.id)return;google.script.run.withSuccessHandler(function(result){parent.postMessage({type:\"AGIO_RESULT\",id:m.id,result:result},PARENT_ORIGIN);}).withFailureHandler(function(err){parent.postMessage({type:\"AGIO_RESULT\",id:m.id,result:{ok:false,error:String(err&&err.message||err)}},PARENT_ORIGIN);}).apiDispatch(m.action,m.payload||{});});'+\n    'parent.postMessage({type:\"AGIO_BRIDGE_READY\"},\"*\");</scr'+'ipt></body></html>';\n}\n";
+    // Google Apps Script backend removed; Supabase is the intended backend.
 
     // =========================================================================
     // 3. STATE MANAGEMENT & GOOGLE SHEETS SYNC ENGINE
     // =========================================================================
-    // Secure Google Apps Script HTMLService bridge. Private API calls are made
-    // through google.script.run inside the Apps Script iframe (not public GET/POST).
-    let AGIO_BRIDGE_FRAME = null;
-    let AGIO_BRIDGE_READY = false;
-    const AGIO_PENDING_CALLS = new Map();
-    let AGIO_CALL_SEQUENCE = 0;
-    window.addEventListener('message', (event) => {
-      if (!AGIO_BRIDGE_FRAME || event.source !== AGIO_BRIDGE_FRAME.contentWindow) return;
-      if (event.data?.type === 'AGIO_BRIDGE_READY') { AGIO_BRIDGE_READY = true; return; }
-      if (event.data?.type === 'AGIO_RESULT' && AGIO_PENDING_CALLS.has(event.data.id)) {
-        const pending = AGIO_PENDING_CALLS.get(event.data.id);
-        AGIO_PENDING_CALLS.delete(event.data.id);
-        clearTimeout(pending.timer);
-        pending.resolve(event.data.result);
-      }
-    });
+    // Backend calls are routed through supabase-browser-adapter.js.
 
     const STORAGE_KEY = 'agio_photography_db_v1';
 
@@ -527,7 +513,6 @@
           this.saveLocal();
         }
         this.applyBrandTheme();
-        this.updateGSheetStatusBadge();
         this.render();
             agioSupabaseRequest('agio_records?select=collection,data&collection=in.(Services,Photographers)')
           .then(rows => {
@@ -545,34 +530,7 @@
           .catch(error => console.warn('Supabase catalogue connection:', error));
       },
 
-      ensureBridge() {
-        const url = String(this.state?.settings?.googleSheetWebAppUrl || '').trim();
-        if (!url || !/^https:\/\/script\.google\.com\/macros\/s\//.test(url)) throw new Error('Enter a valid Google Apps Script Web App URL first.');
-        if (AGIO_BRIDGE_FRAME && AGIO_BRIDGE_FRAME.dataset.baseUrl === url) return;
-        if (AGIO_BRIDGE_FRAME) AGIO_BRIDGE_FRAME.remove();
-        AGIO_BRIDGE_READY = false;
-        AGIO_BRIDGE_FRAME = document.createElement('iframe');
-        AGIO_BRIDGE_FRAME.title = 'Agio secure Google Sheets connection';
-        AGIO_BRIDGE_FRAME.setAttribute('aria-hidden', 'true');
-        AGIO_BRIDGE_FRAME.style.cssText = 'position:absolute;width:1px;height:1px;left:-10000px;top:-10000px;border:0;';
-        AGIO_BRIDGE_FRAME.dataset.baseUrl = url;
-        AGIO_BRIDGE_FRAME.src = url.split('?')[0] + '?bridge=1';
-        document.body.appendChild(AGIO_BRIDGE_FRAME);
-      },
-
-      async apiCall(action, payload = {}) {
-        this.ensureBridge();
-        const id = 'agio_' + (++AGIO_CALL_SEQUENCE) + '_' + Date.now();
-        return new Promise((resolve, reject) => {
-          const timer = setTimeout(() => { AGIO_PENDING_CALLS.delete(id); reject(new Error('Google Sheets connection timed out. Check the Apps Script deployment and allowed website origin.')); }, 20000);
-          AGIO_PENDING_CALLS.set(id, { resolve, reject, timer });
-          const send = () => {
-            if (!AGIO_BRIDGE_READY) { setTimeout(send, 150); return; }
-            AGIO_BRIDGE_FRAME.contentWindow.postMessage({ type: 'AGIO_API', id, action, payload }, '*');
-          };
-          send();
-        });
-      },
+      async apiCall(action, payload = {}) { return await agioSupabaseApi(action, payload); },
 
       async submitStaffLogin(event) {
         event.preventDefault();
@@ -662,13 +620,14 @@
           const collections = [
             ['Services', this.state.services], ['Photographers', this.state.photographers],
             ['Reviews', this.state.reviews], ['BlockedSlots', this.state.blockedSlots],
-            ['Inquiries', this.state.inquiries], ['Settings', [{ id:'studio_settings', ...this.state.settings }]]
+            ['Inquiries', this.state.inquiries], ['Customers', this.state.customers],
+            ['Settings', [{ id:'studio_settings', ...this.state.settings }]]
           ];
           for (const [name, records] of collections) {
             const result = await this.apiCall('saveCollection', { token:this.staffToken, name, records });
             if (!result.ok) throw new Error(result.error || 'Could not sync ' + name);
           }
-        } catch (err) { this.toast('Google Sheets sync issue: ' + err.message, 'error'); }
+        } catch (err) { this.toast('Supabase sync issue: ' + err.message, 'error'); }
         finally { this._syncingAdminData = false; }
       },
 
@@ -679,47 +638,15 @@
         if (nameEl) nameEl.textContent = this.state.settings.studioName;
       },
 
-      updateGSheetStatusBadge() {
-        const url = this.state.settings.googleSheetWebAppUrl;
-        const dot = document.getElementById('gsheet-dot');
-        const label = document.getElementById('gsheet-status-label');
-        if (!dot || !label) return;
-        if (url && url.startsWith('https://script.google.com')) {
-          dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
-          label.textContent = 'Google Sheets: URL Configured';
-        } else {
-          dot.className = 'w-2 h-2 rounded-full bg-amber-400';
-          label.textContent = 'Google Sheet: Local Mode (Click to Link)';
-        }
-      },
-
-      async pushToGoogleSheet(silent = false) {
-        if (!silent) this.toast('Cloud writes are disabled for security. Configure an authenticated backend before enabling administration.', 'error');
-        return false;
-      },
-
+      updateGSheetStatusBadge() { return; },
+      async pushToGoogleSheet() { return false; },
       async pullFromGoogleSheet() {
-        const url = this.state.settings.googleSheetWebAppUrl;
-        if (!url) {
-          this.toast('Enter your Google Apps Script Web App URL first.', 'error');
-          return;
-        }
         try {
-          this.toast('Pulling latest records from Google Sheets...');
-          const res = await fetch(url);
-          const json = await res.json();
-          if (json.ok && json.data) {
-            if (Array.isArray(json.data.Services)) this.state.services = json.data.Services;
-            if (Array.isArray(json.data.Photographers)) this.state.photographers = json.data.Photographers;
-            this.state.settings.lastSyncedAt = new Date().toISOString();
-            this.saveLocal(false);
-            this.updateGSheetStatusBadge();
-            this.render();
-            this.toast('Public services and photographer listings loaded. Private records were not accessed.');
-          }
-        } catch (err) {
-          this.toast('Could not load the public catalogue. Check the read-only Web App URL and deployment.', 'error');
-        }
+          const rows = await agioSupabaseRequest('agio_records?select=collection,data&collection=in.(Services,Photographers)');
+          this.state.services = rows.filter(x => x.collection === 'Services').map(x => x.data);
+          this.state.photographers = rows.filter(x => x.collection === 'Photographers').map(x => x.data);
+          this.saveLocal(false); this.render(); this.toast('Catalogue refreshed from Supabase.');
+        } catch (e) { this.toast(e.message || 'Could not load the Supabase catalogue.', 'error'); }
       },
 
       toast(message, type = 'success') {
@@ -931,7 +858,7 @@
                 <li><button onclick="app.startBooking()" class="hover:text-[#C5A059]">Book an Online Session</button></li>
                 <li><button onclick="app.setView('portal')" class="hover:text-[#C5A059]">Customer Booking Portal</button></li>
                 <li><a href="${this.esc(s.integrations.zoomMeetingLink)}" target="_blank" class="hover:text-[#C5A059]">Zoom Discovery Call</a></li>
-                <li><button onclick="app.openGoogleSheetModal()" class="hover:text-[#C5A059]">Google Sheets Sync Setup</button></li>
+
               </ul>
             </div>
             <div>
@@ -945,7 +872,7 @@
           </div>
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-6 border-t border-stone-800 flex flex-col sm:flex-row justify-between text-xs text-stone-500 gap-2">
             <span>© ${new Date().getFullYear()} ${this.esc(s.studioName)}. All rights reserved.</span>
-            <span>Powered by HTML5 + Vanilla JS + Google Sheets Sync Engine</span>
+            <span>Powered by HTML5 + Vanilla JS + Supabase</span>
           </div>
         `;
       },
@@ -1509,7 +1436,7 @@
             <div class="flex justify-between items-center mb-6">
               <div>
                 <h1 class="font-serif-editorial text-3xl font-semibold">Online Session Booking</h1>
-                <p class="text-xs text-stone-500">Live availability • Double-booking protection • Google Sheets synced</p>
+                <p class="text-xs text-stone-500">Live availability • Double-booking protection • Supabase connected</p>
               </div>
               <button onclick="app.setView('public','home')" class="text-xs font-semibold text-stone-500 hover:text-[#141414]">← Cancel</button>
             </div>
@@ -1765,13 +1692,13 @@
           createdAt: new Date().toISOString()
         };
 
-        // Store every public booking in the central Google Sheets database.
+        // Store every public booking in the central Supabase database.
         try {
           const saved = await this.apiCall('createBooking', { record });
           if (!saved.ok) throw new Error(saved.error || 'The booking could not be saved.');
           Object.assign(record, saved.record || {});
         } catch (err) {
-          this.toast(err.message || 'Could not save booking to Google Sheets. Please try again.', 'error');
+          this.toast(err.message || 'Could not save booking to Supabase. Please try again.', 'error');
           return;
         }
         this.state.appointments.unshift(record);
@@ -1951,61 +1878,6 @@
       },
 
       // =======================================================================
-      // 9. GOOGLE SHEETS TWO-WAY SYNC MODAL (COPYABLE CODE.GS + URL LINKER)
-      // =======================================================================
-      openGoogleSheetModal() {
-        const url = this.state.settings.googleSheetWebAppUrl || '';
-        document.getElementById('modal-root').innerHTML = `
-          <div onclick="app.closeModal()" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-            <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl border border-stone-200 my-8">
-              <div class="flex justify-between items-start mb-4">
-                <div>
-                  <span class="text-xs font-bold uppercase tracking-widest text-emerald-700">Two-Way Cloud Database</span>
-                  <h2 class="font-serif-editorial text-2xl font-semibold">Link Your Google Sheet</h2>
-                </div>
-                <button onclick="app.closeModal()" class="text-stone-400 hover:text-stone-800 text-lg font-bold">✕</button>
-              </div>
-
-              <p class="text-xs text-stone-600 leading-relaxed mb-4">
-Connect the Apps Script backend below. Public bookings are written to the Bookings and Customers tabs. Staff accounts and private dashboard data are protected by server-issued login sessions and role checks.
-              </p>
-
-              <div class="mb-5">
-                <label class="block text-xs font-bold text-stone-800 mb-1">Google Apps Script Web App URL</label>
-                <div class="flex flex-col sm:flex-row gap-2">
-                  <input id="gsheet-url-input" value="${this.esc(url)}" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="flex-1 px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs font-mono" />
-                  <button onclick="app.saveGoogleSheetUrl()" class="px-5 py-2.5 rounded-xl bg-[#141414] text-white text-xs font-semibold hover:bg-[#C5A059]">Save &amp; Link</button>
-                </div>
-              </div>
-
-              <div class="flex flex-wrap gap-2 mb-6">
-                <button onclick="app.pullFromGoogleSheet()" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold hover:bg-stone-50">↓ Load Public Catalogue</button>
-                <button onclick="app.copyAppsScript()" class="px-4 py-2 rounded-xl bg-stone-100 text-stone-800 text-xs font-semibold hover:bg-stone-200">Copy Secure Backend Code.gs</button>
-              </div>
-
-              <div class="bg-stone-900 text-stone-200 p-4 rounded-2xl text-[11px] font-mono overflow-x-auto max-h-60">
-                <pre>${this.esc(GOOGLE_APPS_SCRIPT_CODE)}</pre>
-              </div>
-            </div>
-          </div>
-        `;
-      },
-
-      saveGoogleSheetUrl() {
-        const val = document.getElementById('gsheet-url-input').value.trim();
-        this.state.settings.googleSheetWebAppUrl = val;
-        this.saveLocal(false);
-        this.updateGSheetStatusBadge();
-        this.toast(val ? 'Google Apps Script URL saved. Secure bridge will connect when deployed.' : 'Google Sheet URL cleared.');
-        if (val) { try { this.ensureBridge(); } catch (e) { this.toast(e.message, 'error'); } }
-      },
-
-      copyAppsScript() {
-        navigator.clipboard?.writeText(GOOGLE_APPS_SCRIPT_CODE);
-        this.toast('Google Apps Script (Code.gs) copied to clipboard!');
-      },
-
-      // =======================================================================
       // 10. ADMINISTRATIVE DASHBOARD
       // =======================================================================
       renderAdminDashboard() {
@@ -2023,7 +1895,7 @@ Connect the Apps Script backend below. Public bookings are written to the Bookin
           { id: 'customers', label: 'Customer CRM' },
           { id: 'reviews', label: 'Reviews Moderation' },
           { id: 'reports', label: 'Reports & CSV' },
-          { id: 'settings', label: 'Settings & Google Sheet' }
+          { id: 'settings', label: 'Settings & Database' }
         ];
         if (this.staffUser.role === 'Photographer' || this.staffUser.role === 'Staff') {
           tabs = tabs.filter(t => ['overview','bookings','calendar'].includes(t.id));
@@ -2081,7 +1953,7 @@ Connect the Apps Script backend below. Public bookings are written to the Bookin
           <div class="space-y-6">
             <div class="flex flex-wrap justify-between items-center gap-4">
               <h1 class="font-serif-editorial text-2xl sm:text-3xl font-semibold">Executive Overview</h1>
-              <button onclick="app.openGoogleSheetModal()" class="px-4 py-2 rounded-xl bg-emerald-700 text-white text-xs font-semibold">Google Sheet Sync Settings</button>
+
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               ${kpis.map((k) => `
@@ -2585,21 +2457,10 @@ Connect the Apps Script backend below. Public bookings are written to the Bookin
         return `
           <form onsubmit="app.saveSettingsForm(event)" class="space-y-6 max-w-4xl">
             <div class="flex justify-between items-center">
-              <h1 class="font-serif-editorial text-2xl font-semibold">Branding, Gateways &amp; Google Sheets</h1>
+              <h1 class="font-serif-editorial text-2xl font-semibold">Branding &amp; Integrations</h1>
               <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#141414] text-white text-xs font-semibold uppercase">Save Settings</button>
             </div>
 
-            <div class="bg-emerald-950 text-white p-6 rounded-2xl space-y-3 text-xs">
-              <div class="flex justify-between items-center">
-                <span class="font-bold uppercase tracking-wider text-emerald-300">Google Sheets Two-Way Database Sync</span>
-                <button type="button" onclick="app.openGoogleSheetModal()" class="underline text-emerald-200">View Secure Backend Code.gs</button>
-              </div>
-              <input name="googleSheetWebAppUrl" value="${this.esc(s.googleSheetWebAppUrl || '')}" placeholder="https://script.google.com/macros/s/YOUR_DEPLOY_ID/exec" class="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-emerald-700 text-white font-mono" />
-              <div class="flex gap-2">
-                <button type="button" onclick="app.refreshStaffBookings()" class="px-4 py-2 rounded-xl bg-emerald-600 font-semibold">Refresh Bookings</button>
-                <button type="button" onclick="app.copyAppsScript()" class="px-4 py-2 rounded-xl bg-white/10 font-semibold">Copy Backend Code</button>
-              </div>
-            </div>
 
             <div class="bg-white p-6 rounded-2xl border border-stone-200 space-y-4 text-xs">
               <h3 class="font-serif-editorial text-lg font-semibold">Studio Brand Identity &amp; Policies</h3>
@@ -2634,14 +2495,12 @@ Connect the Apps Script backend below. Public bookings are written to the Bookin
         s.phone = fd.get('phone');
         s.bookingPolicy = fd.get('bookingPolicy');
         s.cancellationPolicy = fd.get('cancellationPolicy');
-        s.googleSheetWebAppUrl = fd.get('googleSheetWebAppUrl').trim();
         s.gateways.paystackPublicKey = fd.get('paystackPublicKey').trim();
         s.gateways.flutterwavePublicKey = fd.get('flutterwavePublicKey').trim();
         s.gateways.stripePublishableKey = fd.get('stripePublishableKey').trim();
         s.gateways.paypalClientId = fd.get('paypalClientId').trim();
         this.saveLocal(true);
         this.applyBrandTheme();
-        this.updateGSheetStatusBadge();
         this.toast('All settings saved!');
         this.render();
       }
